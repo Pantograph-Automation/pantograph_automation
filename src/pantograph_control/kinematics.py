@@ -1,6 +1,11 @@
 import numpy as np
+from numpy.typing import NDArray
+from typing import Tuple
 
-def compute_joint_angles(a1, a2, a3, a4, a5, P1, P3, P5):
+def compute_joint_angles(
+    a1: float, a2: float, a3: float, a4: float, a5: float,
+    P1: NDArray[np.float64], P3: NDArray[np.float64], P5: NDArray[np.float64]
+) -> Tuple[float, float]:
     # TODO: Update url with link
     # TODO: Add ValueError test
     """
@@ -38,9 +43,13 @@ def compute_joint_angles(a1, a2, a3, a4, a5, P1, P3, P5):
 
     return theta1, theta5
 
-def compute_end_point(a1, a2, a3, a4, a5, P1, P5, theta1, theta5):
+def compute_end_point(
+    a1: float, a2: float, a3: float, a4: float, a5: float,
+    P1: NDArray[np.float64], P5: NDArray[np.float64],
+    theta1: float, theta5: float
+) -> NDArray[np.float64]:
     """
-    Compute joint angles given a pantograph end point. Follows the coordinate system and ik equations
+    Compute joint angles given a pantograph end point. Follows the coordinate system and ik equations\n
     detailed in this paper: <URL>
 
     Args:
@@ -55,6 +64,7 @@ def compute_end_point(a1, a2, a3, a4, a5, P1, P5, theta1, theta5):
         OutOfBoundsException: If P3 is out of reach of the end effector.
         ValueError: If the distance between P1 and P5 != a5
     """
+    # TODO: Update url
 
     if not (_dist(P1, P5) == a5):
         raise ValueError(f"P1: {P1} and P5: {P5} are further apart than the length of a5: {a5}")
@@ -92,6 +102,7 @@ def _compute_theta5(alpha5, beta5):
 
 class OutOfBoundsException(Exception):
     """Raised when a point lies outside the valid bounds."""
+    
     def __init__(self, point=None, message="Point is out of bounds"):
         if point is not None:
             message = f"{message}: {point}"

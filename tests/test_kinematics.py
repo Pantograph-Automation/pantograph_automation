@@ -1,6 +1,6 @@
 import pytest
 import numpy as np
-from pantograph_control.ik import compute_joint_angles, OutOfBoundsException
+from pantograph_control.kinematics import compute_joint_angles, OutOfBoundsException
 
 @pytest.mark.filterwarnings("ignore:invalid value encountered in arccos")
 def test_out_of_bounds():
