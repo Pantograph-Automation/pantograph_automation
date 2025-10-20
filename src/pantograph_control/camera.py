@@ -12,7 +12,7 @@ import os
 # 6. For each component compute centroid (or fit a circle) and optionally filter by size and circularity.
 # 7. Build arr = np.vstack([x_pixels, y_pixels, np.full(n, z)]) → shape (3, n).
 # TODO: Camera <-> pi interface
-# https://github.com/waveform80/picamera/tree/release-1.13
+# https://github.com/raspberrypi/picamera2/tree/main
 #
 # TODO: Build CV pipeline
 
@@ -22,7 +22,7 @@ class Camera:
         ''' TODO: Docstring for camera class
         '''
 
-        assert position.shape == (3,) # Must be a point in eucelidean space
+        assert position.shape == (3,), "Must be a point in eucelidean space"
 
         self.position = position
 

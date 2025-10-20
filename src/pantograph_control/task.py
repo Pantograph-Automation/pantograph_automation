@@ -136,3 +136,19 @@ class Task:
         """
 
         raise NotImplementedError("'run' has not yet been implemented")
+    
+class Initialize(Task):
+
+    def __init__(self):
+        super().__init__()
+
+    def run(self):
+
+        # Configure and check camera
+        # Configure and check stepper motors
+        # Configure and check servo motor
+
+        # Home stepper motors
+
+
+        return
