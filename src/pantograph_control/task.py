@@ -29,7 +29,7 @@ from PySide6.QtCore import QObject, Signal, Slot
 import time, traceback, sys
 
 
-# TODO: Implement task
+# TODO: Implement task stack
 class TaskStack(QObject):
     finished = Signal()  # No arguments
     error = Signal(tuple) # Emits (type, value, traceback)
@@ -94,7 +94,7 @@ class TaskStack(QObject):
 
         pass
 
-# TODO: Implement task
+# TODO: Implement tasks
 class Task:
     """
     Template for creating tasks used by the ui package.
