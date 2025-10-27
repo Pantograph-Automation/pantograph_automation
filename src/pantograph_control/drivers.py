@@ -29,7 +29,13 @@ class Servo:
 
         pass
 
+    def close(self):
+
+        return
+
 if __name__ == "__main__":
 
     motor = Servo()
     motor.position(85)
+
+    
