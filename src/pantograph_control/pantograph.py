@@ -1,0 +1,188 @@
+from dataclasses import dataclass
+import drivers, kinematics
+import math
+
+
+
+@dataclass
+class JointConfig:
+    ''' Configuration data for Joint '''
+    
+    # Stepper configuration
+    ENA_PIN:int
+    PUL_PIN:int
+    DIR_PIN:int
+    STEPS_PER_REV:int=1600
+    SPEED:float=60
+
+    # TODO: Encoder configuration
+    ENCODER_SIGNAL:int
+
+@dataclass
+class GripperConfig:
+    ''' Configuration data for the Gripper '''
+    SERVO_PIN:int # servo
+    FREQUENCY:float = 50
+    MIN_DUTY:int = 2
+    MAX_DUTY:int = 12
+    RANGE_OF_MOTION:float = 180
+    
+
+
+class Joint:
+    
+    def __init__(self, config:JointConfig):
+
+        self.position = None        
+
+        self.stepper = drivers.Stepper(
+            config.ENA_PIN,
+            config.DIR_PIN,
+            config.PUL_PIN,
+            config.STEPS_PER_REV,
+            config.SPEED
+        )
+
+        # Option to add encoder later
+        pass
+
+    def zero(self):
+        ''' Sets the current joint position index to zero '''
+        self.position = 0
+        return
+    
+    def set_position(self, position:float):
+        ''' Sets the joint position
+        
+            Args
+                position (int): The position in radians to which the joint should rotate
+                
+            Raises
+                RuntimeError: When the joint is not calibrated (i.e. position is None)
+        '''
+        if self.position is None:
+            raise RuntimeError('Calibrate the joint!\n(Hint: use Joint.zero() once the motor is at its zero position)')
+
+        # Calculate neccessary angle change
+        angle = position - self.get_position()
+
+        # Calculate which direction to rotate
+        direction = True if angle >= 0 else False
+
+        # Calculate number of steps to rotate
+        steps = self.__rad_to_steps(abs(angle))
+
+        # Rotate the stepper
+        self.stepper.step(steps, direction)
+        self.position = position # Change this later for feedback control
+
+        return
+    
+    def get_position(self):
+        ''' Gets the joint position
+        
+            Returns
+                position: Current joint position in radians
+        '''
+        # Option to add reading from encoder in the future
+        return self.position
+    
+    def __rad_to_steps(self, angle:float) -> int:
+        ''' Converts the angle (in radians) to number of steps '''
+
+        assert angle >= 0 , ' Error in __rad_to_steps: angle must be positive'
+
+        return (angle * self.stepper.steps_per_rev) // (2 * math.pi)
+     
+    
+
+class Gripper:
+
+    def __init__(self, config:GripperConfig, angle_at_open:float, angle_at_closed:float):
+        ''' Initialize the gripper
+            
+            Args
+                config: The gripper hardware configuration data
+                angle_at_open: The angle at which the gripper is all the way open
+                angle_at_closed: The angle at which the gripper is all the way closed
+        '''
+
+        self.percent = None
+        self.max_angle = angle_at_open
+        self.min_angle = angle_at_closed
+        
+        self.main_servo = drivers.Servo(
+            config.SERVO_PIN,
+            config.FREQUENCY,
+            config.MIN_DUTY,
+            config.MAX_DUTY
+        )
+
+        # Option for secondary servo if neccessary
+
+        pass
+    
+    def zero(self):
+        ''' Sets the current gripper percent closed to zero (fully closed)'''
+        self.percent = 0
+        return
+    
+    def grip(self, percent:float=100):
+        ''' Move the gripper to a percent open (default to all the way open)
+        
+            Args
+                percent (float): a value from 0 to 100, 0 being closed and 100 being open
+            
+            Raises
+                AssertionError: When percent is not between 0 and 100, inclusive
+        '''
+        assert percent >= 0 and percent <= 100 , f'Percentage {percent} must be between 0 and 100, inclusive!'
+
+        self.main_servo.set_position(
+            self.__percent_to_angle(percent),
+            delay=(0.5 * percent / 100) # TODO: Calibrate max servo delay (right now at 0.5s)
+        )
+        return
+    
+    def open(self):
+        ''' Open the gripper '''
+        self.grip(100)
+        return
+    
+    def close(self):
+        ''' Close the gripper '''
+        self.grip(0)
+        return
+    
+    def __percent_to_angle(self, percent):
+        ''' Convert a percentage to a gripper angle 
+        
+            Returns
+                angle (percent): The angle to which the percentage corresponds to
+        '''
+
+        angle = percent/100 * (self.max_angle - self.min_angle)
+
+        return angle
+
+@dataclass
+class PantographConfig:
+    ''' Configuration data for Pantograph '''
+    joint1:Joint
+    joint2:Joint
+    gripper:Gripper
+
+class Pantograph:
+
+    def __init__(self, config: PantographConfig) -> None:
+        
+        self.gripper = config.gripper
+        self.joint1 = config.joint1
+        self.joint2 = config.joint2
+             
+        pass
+
+    
+
+
+

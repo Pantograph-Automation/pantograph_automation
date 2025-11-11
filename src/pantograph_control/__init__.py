@@ -1,4 +1,6 @@
 import numpy as np
+from pantograph_control import camera, \
+    drivers, kinematics, pantograph, task, trajectory
 
 LINKS = {
     "L1": 5,
@@ -31,5 +33,25 @@ TRAJ_OUT_FULL_PEAK = np.array([-0.1, 0.1, STACK_WAYPOINT_Z_OFFSET])
 TRAJ_IN_WASTE_PEAK = np.array([-0.3, 0.15, STACK_WAYPOINT_Z_OFFSET])
 TRAJ_OUT_EMPTY_PEAK = np.array([0.3, 0.15, STACK_WAYPOINT_Z_OFFSET])
 TRAJ_IN_FULL_PEAK = np.array([0.1, 0.1, STACK_WAYPOINT_Z_OFFSET])
+
+# pantograph class configuration variables
+ENA_PIN_1 = 17 # stepper 1
+PUL_PIN_1 = 27
+DIR_PIN_1 = 12
+ENA_PIN_2 = 13 # stepper 2
+PUL_PIN_2 = 16
+DIR_PIN_2 = 19
+ENA_PIN_3 = 5 # stepper 3
+PUL_PIN_3 = 6
+DIR_PIN_3 = 7
+STEPS_PER_REV = 1600 # common stepper config
+SPEED = 60
+SERVO_PIN = 11 # servo
+FREQUENCY = 50
+MIN_DUTY = 2
+MAX_DUTY = 12
+RANGE_OF_MOTION = 180
+
+
 
 
