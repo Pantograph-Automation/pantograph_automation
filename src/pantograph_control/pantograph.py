@@ -1,7 +1,9 @@
 from dataclasses import dataclass
 import drivers, kinematics
-import math
-
+import math, threading
+import numpy as np
+from numpy.typing import NDArray
+from typing import Tuple
 
 
 @dataclass
@@ -16,7 +18,6 @@ class JointConfig:
     SPEED:float=60
 
     # TODO: Encoder configuration
-    ENCODER_SIGNAL:int
 
 @dataclass
 class GripperConfig:
@@ -26,7 +27,6 @@ class GripperConfig:
     MIN_DUTY:int = 2
     MAX_DUTY:int = 12
     RANGE_OF_MOTION:float = 180
-    
 
 
 class Joint:
@@ -171,6 +171,15 @@ class PantographConfig:
     joint1:Joint
     joint2:Joint
     gripper:Gripper
+    
+    link_a1:float
+    link_a2:float
+    link_a3:float
+    link_a4:float
+    link_a5:float
+
+    P1: NDArray[np.float64]
+    P5: NDArray[np.float64]
 
 class Pantograph:
 
@@ -179,8 +188,52 @@ class Pantograph:
         self.gripper = config.gripper
         self.joint1 = config.joint1
         self.joint2 = config.joint2
-             
+
+        self.a1 = config.link_a1
+        self.a2 = config.link_a2
+        self.a3 = config.link_a3
+        self.a4 = config.link_a4
+        self.a5 = config.link_a5
+
+        self.P1 = config.P1
+        self.P5 = config.P5        
         pass
+
+    def moveto(self, point: NDArray[np.float64], interp_interval):
+        
+        theta1, theta2 = kinematics.compute_joint_angles(
+            self.a1, self.a2, self.a3, self.a4, self.a5,
+            self.P1, point, self.P5
+        )
+
+        thread1 = threading.Thread(target=self.joint1.set_position, args=(theta1, ))
+        thread2 = threading.Thread(target=self.joint2.set_position, args=(theta2, ))
+
+        thread1.start()
+        thread2.start()
+
+        thread1.join()
+        thread2.join()
+
+        return
+
+    def iso_move_joint1(self, angle):
+        ''' Moves joint 1 in isolation '''
+
+        self.joint2.stepper.disable()
+        self.joint1.set_position(angle)
+
+
+        return
+    
+    def iso_move_joint2(self, angle):
+        ''' Moves joint 2 in isolation '''
+
+        self.joint1.stepper.disable()
+        self.joint2.set_position(angle)
+
+        return
+
 
     
 
