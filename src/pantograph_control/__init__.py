@@ -1,6 +1,4 @@
 import numpy as np
-from pantograph_control import camera, \
-    drivers, kinematics, pantograph, task, trajectory
 
 LINKS = {
     "L1": 5,

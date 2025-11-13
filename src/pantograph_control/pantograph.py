@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-import drivers, kinematics
+from . import drivers, kinematics
 import math, threading
 import numpy as np
 from numpy.typing import NDArray
@@ -70,7 +70,7 @@ class Joint:
         direction = True if angle >= 0 else False
 
         # Calculate number of steps to rotate
-        steps = self.__rad_to_steps(abs(angle))
+        steps = int(self.__rad_to_steps(abs(angle)))
 
         # Rotate the stepper
         self.stepper.step(steps, direction)
@@ -170,6 +170,7 @@ class PantographConfig:
     ''' Configuration data for Pantograph '''
     joint1:Joint
     joint2:Joint
+    z_stage:Joint
     gripper:Gripper
     
     link_a1:float
@@ -188,6 +189,7 @@ class Pantograph:
         self.gripper = config.gripper
         self.joint1 = config.joint1
         self.joint2 = config.joint2
+        self.z_stage = config.z_stage
 
         self.a1 = config.link_a1
         self.a2 = config.link_a2
@@ -199,13 +201,14 @@ class Pantograph:
         self.P5 = config.P5        
         pass
 
-    def moveto(self, point: NDArray[np.float64], interp_interval):
+    def moveto(self, point: NDArray[np.float64]):
         
         theta1, theta2 = kinematics.compute_joint_angles(
             self.a1, self.a2, self.a3, self.a4, self.a5,
             self.P1, point, self.P5
         )
 
+        
         thread1 = threading.Thread(target=self.joint1.set_position, args=(theta1, ))
         thread2 = threading.Thread(target=self.joint2.set_position, args=(theta2, ))
 
@@ -216,23 +219,34 @@ class Pantograph:
         thread2.join()
 
         return
-
-    def iso_move_joint1(self, angle):
-        ''' Moves joint 1 in isolation '''
-
-        self.joint2.stepper.disable()
-        self.joint1.set_position(angle)
-
-
-        return
     
-    def iso_move_joint2(self, angle):
-        ''' Moves joint 2 in isolation '''
+    def move_z(self, steps, direction):
+
+        self.z_stage.stepper.step(steps, direction)
+
+    def calibrate_temp(self):
+
+       
+        self.joint1.stepper.disable()
+        self.joint2.stepper.disable()
+        input(f"Press enter to zero joint1 >> ")
+        self.joint1.zero()
+        self.joint1.stepper.enable()
+        self.joint2.stepper.enable()
 
         self.joint1.stepper.disable()
-        self.joint2.set_position(angle)
+        self.joint2.stepper.disable()
+        input(f"Press enter to set joint2 to pi/2 >> ")
+        self.joint2.position = np.pi/2
+        self.joint1.stepper.enable()
+        self.joint2.stepper.enable()
 
-        return
+        input(f"Press enter to zero z_stage >> ")
+        self.z_stage.zero()
+
+        self.joint2.set_position(np.pi/2)
+        self.joint1.set_position(np.pi/4)
+        self.joint2.set_position(3*np.pi/4)
 
 
     
