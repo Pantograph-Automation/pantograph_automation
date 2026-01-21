@@ -5,6 +5,10 @@
         "ms-python.vscode-pylance",
         "ms-python.vscode-python-envs",
         "tamasfe.even-better-toml",
-        "gruntfuggly.todo-tree"
+        "gruntfuggly.todo-tree",
+        "platformio.platformio-ide"
+    ],
+    "unwantedRecommendations": [
+        "ms-vscode.cpptools-extension-pack"
     ]
 }
