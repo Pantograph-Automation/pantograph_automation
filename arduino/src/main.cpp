@@ -1,4 +1,7 @@
-#include "main.h"
+#include <AccelStepper.h>
+#include <Encoder.h>
+#include <AS5600.h>
+#include "config.h"
 
 // usbipd list
 // usbipd attach --wsl --busid 2-1
@@ -18,11 +21,9 @@ bool pulse_active = false;
 unsigned long pulse_start = 0UL;
 unsigned long last_time = 0UL;
 // PID loop variables
-float Kp = 20.0;
-float Ki = 0.0;
-float Kd = 0.0;
 float pos_cmd = 0.0;
 float pos_est = 0.0f;
+float vel_prev = 0.0f;
 
 const float desired_position = 1.570796; // 90 degrees
 
@@ -111,11 +112,6 @@ void loop()
     pulse_active = false;
   }
 
-  // // ---- I2C clock (your code) ----
-  // clk += 100000;
-  // if (clk > 800000) clk = 100000;
-  // Wire.setClock(clk);
-
   // ---- read encoder for PID (measured position) ----
   float current_angle = read_encoder(offset);
   // ---- PID
@@ -126,8 +122,13 @@ void loop()
     error = 0.0f;
   }
 
-  float vel_cmd = Kp * error;       // rad/s from PID (add I/D as needed)
-  // clamp velocity to something feasible
+  float vel_cmd = Kp * error;
+
+  if (vel_cmd - vel_prev > ACCEL_MAX) vel_cmd = vel_prev + ACCEL_MAX;
+  if (vel_cmd - vel_prev < -ACCEL_MAX) vel_cmd = vel_prev - ACCEL_MAX;
+  
+  vel_prev = vel_cmd;
+
   if (vel_cmd > V_MAX) vel_cmd = V_MAX;
   if (vel_cmd < -V_MAX) vel_cmd = -V_MAX;
 
