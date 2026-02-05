@@ -11,12 +11,10 @@ class Buffer {
     int count = 0;
 
   public:
-    // Constructor allocates memory based on the size passed in
     Buffer(int size) : capacity(size) {
       buffer = new T[capacity]; 
     }
 
-    // Destructor to clean up memory (important for dynamic classes)
     ~Buffer() {
       delete[] buffer;
     }
@@ -61,11 +59,11 @@ class Buffer {
     int size() const { return count; }
   };
 
-class State
+class Stepper
 {
   public:
 
-    State() {};
+    Stepper() {};
 
     // Rotational state information
     //
@@ -95,6 +93,10 @@ class State
       time_buffer.pushOverwrite(micros());
     }
 
+    // Non-blocking pulse method
+    //
+
+
   private:
 
     // Buffers that remember the states at t, t-1, and t-2
@@ -103,6 +105,10 @@ class State
     Buffer<float> acceleration_buffer{3};
     Buffer<unsigned long> time_buffer{3}; // t, t-1, and t-2
 
+    bool pulse_active;
+
+
+    // Generic getter and setter
     template<typename T>
     inline T get_(Buffer<T>& buffer, int index)
     {
@@ -114,6 +120,9 @@ class State
     {
       buffer.pushOverwrite(value);
     }
+
+
+
 
 };
 
@@ -133,7 +142,7 @@ class Controller
     {
       dof_ = number_of_steppers;
       
-      steppers_ = new State[dof_];
+      steppers_ = new Stepper[dof_];
       
     }
 
@@ -158,9 +167,9 @@ class Controller
         float dt = steppers_[i].get_time_delta() * 1e-6f;
 
         if (pulse_active && (now - pulse_start >= PULSE_WIDTH_US)) {
-                digitalWrite(S1_PULSE_PIN, LOW);
-                pulse_active = false;
-              }
+          digitalWrite(S1_PULSE_PIN, LOW);
+          pulse_active = false;
+        }
 
       }
 
@@ -215,7 +224,7 @@ class Controller
 
     int dof_ = 0;
 
-    State* steppers_;    
+    Stepper* steppers_;    
 
     inline bool initialized()
     {
