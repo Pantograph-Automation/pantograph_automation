@@ -52,7 +52,7 @@ class Buffer {
         count++;
       }
       
-      data[head] = value;
+      buffer[head] = value;
       head = (head + 1) % capacity;
     }
 

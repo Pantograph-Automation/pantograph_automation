@@ -5,6 +5,8 @@
 // usbipd list
 // usbipd attach --wsl --busid 2-1
 
+float offset = 0.0f;
+
 const float POS_CMD_MAX_ERROR = 5 * RAD_PER_STEP;
 
 // Encoder E1(E1_A_PIN, E2_B_PIN);
@@ -87,7 +89,7 @@ void loop()
 
 
   // Run the PID law to determine whether a step is required
-  Controller::Status status = controller.pid(
+  Status status = controller.pid(
     Kp, Ki, Kd,
     desired_position,
     V_MAX,
@@ -97,7 +99,7 @@ void loop()
     RAD_PER_STEP
   );
 
-  if (status == Controller::Status::FINISHED)
+  if (status == Status::FINISHED)
   {
     Serial.println("Finished moving to setpoint!");
   }

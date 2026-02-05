@@ -1,10 +1,16 @@
 #pragma once
 #include "stepper.hpp"
 
+enum class Status
+{
+  ACTIVE,
+  FINISHED,
+  ERROR
+};
 
 class Controller
 {
-  inline constexpr int BUFFER_CAP = 3;
+  int BUFFER_CAP = 3;
 
   public:
 
@@ -12,13 +18,6 @@ class Controller
       error_buffer_.fill(0.0);
       cmd_buffer_.fill(0.0);
     };
-
-    enum class Status
-    {
-      ACTIVE,
-      FINISHED,
-      ERROR
-    }
 
     /**
      * @brief compute the PID law for a velocity-controlled stepper motor
@@ -85,7 +84,7 @@ class Controller
     }
 
     template <typename T>
-    inline void clamp(T& val, const T& low, const T& high)
+    void clamp(T& val, const T& low, const T& high)
     {
       if (val < low) val = low;
       if (val > high) val = high;

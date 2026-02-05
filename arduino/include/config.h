@@ -1,6 +1,6 @@
-#define S1_PULSE_PIN 9
-#define S1_DIR_PIN 8
-#define S1_ENABLE_PIN 10
+#define S1_PULSE_PIN 15
+#define S1_DIR_PIN 14
+#define S1_ENABLE_PIN 18
 #define RAD_PER_STEP 0.003926991f
 #define PULSE_WIDTH_US 10UL
 #define V_MAX 10.0f                   // rad/s max

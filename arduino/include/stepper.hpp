@@ -22,28 +22,18 @@ class Stepper
       pinMode(enable_pin, OUTPUT);
       pinMode(direction_pin, OUTPUT);
 
-      unsigned long time = 0UL;
-      try
-      {
-        time = micros();
-      }
-      catch(...)
-      {
-        time = 0UL;
-      }
-
-      time_buffer.fill(time);
+      time_buffer.fill(0UL);
       position_buffer.fill(0.0);
       velocity_buffer.fill(0.0);
       acceleration_buffer.fill(0.0);
     };
 
     // Basic utility methods
-    void enable_stepper() {
+    void enable() {
       digitalWrite(enable_pin, HIGH);
     }
 
-    void disable_stepper() {
+    void disable() {
       digitalWrite(enable_pin, LOW);
     }
     void set_direction_forward()
@@ -56,13 +46,13 @@ class Stepper
       digitalWrite(direction_pin, LOW);
     }
 
-    inline unsigned long get_time(int index = 0) { get_(time_buffer, index); }
+    inline unsigned long get_time(int index = 0) { return get_(time_buffer, index); }
 
-    inline float get_position(int index = 0) { get_(position_buffer, index); }
+    inline float get_position(int index = 0) { return get_(position_buffer, index); }
 
-    inline float get_velocity(int index = 0) { get_(velocity_buffer, index); }
+    inline float get_velocity(int index = 0) { return get_(velocity_buffer, index); }
 
-    inline float get_acceleration(int index = 0) { get_(acceleration_buffer, index); }
+    inline float get_acceleration(int index = 0) { return get_(acceleration_buffer, index); }
 
     /**
      * @brief Update state information with new position
@@ -161,7 +151,7 @@ class Stepper
      * @brief Generic setter
      */
     template<typename T>
-    inline void update_(Buffer<T>& buffer, T& value)
+    inline void update_(Buffer<T>& buffer, const T& value)
     {
       buffer.pushOverwrite(value);
     }
