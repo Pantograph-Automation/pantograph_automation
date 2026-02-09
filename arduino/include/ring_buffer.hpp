@@ -61,7 +61,7 @@ class Buffer {
     void fill(const T& value) {
       for (int i = 0; i < capacity; i++)
       {
-        this->pushOverwrite(0.0);
+        this->pushOverwrite(value);
       }
     }
   };

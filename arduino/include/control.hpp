@@ -1,5 +1,8 @@
 #pragma once
-#include "stepper.hpp"
+#include "joint.hpp"
+
+#define BUFFER_CAP 3
+#define UPDATE_RATE 1000
 
 enum class Status
 {
@@ -10,17 +13,16 @@ enum class Status
 
 class Controller
 {
-  int BUFFER_CAP = 3;
 
   public:
 
-    Controller(Stepper& stepper) : stepper_(stepper) {
+    Controller(Joint& joint) : joint_(joint) {
       error_buffer_.fill(0.0);
       cmd_buffer_.fill(0.0);
     };
 
     /**
-     * @brief compute the PID law for a velocity-controlled stepper motor
+     * @brief compute the PID law for a velocity-controlled joint
      * @param Kp Stiffness gain
      * @param Ki Integral gain
      * @param Kd Damping gain
@@ -36,6 +38,7 @@ class Controller
       const float Ki,
       const float Kd,
       const float desired_position,
+      const unsigned long dt,
       const float max_velocity,
       const float max_acceleration,
       const float max_pos_cmd_delta,
@@ -44,7 +47,7 @@ class Controller
     ) {
 
       // update error, deadbanding if neccessary
-      float error = desired_position - stepper_.get_position();
+      float error = desired_position - joint_.get_position().value;
       if (fabs(error) < position_deadband) {
         error = 0.0f;
       }
@@ -56,10 +59,10 @@ class Controller
       }
       
       // vel_cmd = Kp (e(k) - e(k - 1)) + Ki e(k) dt + Kd * (e(k) - 2e(k - 1) + e(k-2)) / (dt)
-      float proportional = Kp * (error - error_buffer_.get(1));
-      float integral = Ki * (error * stepper_.get_time_delta() * 1e-9);
-      float derivative = Kd * ((error - 2*error_buffer_.get(1) 
-        + error_buffer_.get(2)) / (stepper_.get_time_delta() * 1e-9));
+      float proportional = Kp * error;
+      float integral = 0.0; // Ki * (error * joint_.get_time_delta() * 1e-9);
+      float derivative = 0.0; // Kd * ((error - 2*error_buffer_.get(1) 
+      //  + error_buffer_.get(2)) / (joint_.get_time_delta() * 1e-9));
       
       float velocity_cmd = proportional + integral + derivative;
 
@@ -72,13 +75,13 @@ class Controller
       // Update command buffer
       cmd_buffer_.pushOverwrite(velocity_cmd);
 
-      float pos_cmd_delta = velocity_cmd * stepper_.get_time_delta() * 1e-9;
+      float pos_cmd_delta = velocity_cmd * dt * 1e-9;
       
       clamp(pos_cmd_delta, -max_pos_cmd_delta, max_pos_cmd_delta);
 
       pos_cmd += pos_cmd_delta;
 
-      stepper_.check_step_required(pos_cmd, rad_per_step, pos_est);
+      joint_.check_step_required(pos_cmd, rad_per_step, pos_est);
 
       return Status::ACTIVE;
     }
@@ -93,7 +96,7 @@ class Controller
 
   private:
 
-    Stepper stepper_;
+    Joint joint_;
     Buffer<float> error_buffer_{2};
     Buffer<float> cmd_buffer_{2};
 
