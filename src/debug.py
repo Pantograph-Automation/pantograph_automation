@@ -1,74 +1,31 @@
-from pantograph_control.pantograph import *
+#!/usr/bin/env python3
+"""
+Simple capture: grab RGB still from Picamera2, keep only bright red spots, save image.
+"""
+import sys
+from picamera2 import Picamera2
 import numpy as np
-from time import sleep
+import cv2
 
-joint1_config = JointConfig(
-    17, 22, 27, 1600, 10
-)
+OUT = sys.argv[1] if len(sys.argv) > 1 else "red_spots.png"
+MIN_RED = 130      # minimum red intensity (0-255)
+R_G_RATIO = 1.3     # R must be > R_G_RATIO * G
+R_B_RATIO = 1.3    # R must be > R_B_RATIO * B
 
-joint2_config = JointConfig(
-    10, 11, 9, 1600, 10
-)
+pc = Picamera2()
+pc.configure(pc.create_still_configuration())   # default processed RGB "main"
+pc.start()
+img = pc.capture_array("main")  # HxWx3 RGB uint8
+pc.stop()
 
-joint3_config = JointConfig(
-    5, 13, 6, 1600, 90
-)
+r = img[..., 0].astype(np.int16)
+g = img[..., 1].astype(np.int16)
+b = img[..., 2].astype(np.int16)
 
-gripper_config = GripperConfig(12)
+mask = (r >= MIN_RED) & (r >= (R_G_RATIO * g)) & (r >= (R_B_RATIO * b))
+out = np.zeros_like(img)
+out[..., 0] = (img[..., 0] * mask).astype(np.uint8)  # keep red channel where mask true
 
-joint1 = Joint(joint1_config)
-joint2 = Joint(joint2_config)
-joint3 = Joint(joint3_config)
-gripper = Gripper(gripper_config, 50, 0)
-
-pantograph = Pantograph(PantographConfig(joint1, joint2, joint3, gripper,
-                                         15, 17, 17, 15, 11,
-                                         P1=np.array([0, 0]), P5=np.array([-11, 0])))
-
-pantograph.calibrate_temp()
-pantograph.joint1.stepper.speed = 20
-pantograph.joint2.stepper.speed = 20
-pantograph.z_stage.stepper.speed = 120
-
-while True:
-
-    x = input('(demo) >> ')
-
-    match x:
-
-        case 'p':
-
-            points = [
-                (15, 16),
-                (-26, 16),
-                (15, 16),
-                (-26, 16),
-                (15, 16),
-                (-6.5, 15)
-            ]
-
-            for point in points:
-
-                print(f'Moving to {point}')
-                pantograph.moveto(np.array([point[0], point[1]]))
-        
-        case 'p_specific':
-
-            point = (-6.5, 16)
-
-            print(f'Moving to {point}')
-            pantograph.moveto(np.array([point[0], point[1]]))
-        
-        case 'z':
-            pantograph.move_z(4000, True)
-            sleep(0.5)
-            pantograph.move_z(4000, False)
-
-        case 'g':
-            pantograph.gripper.open()
-            sleep(0.5)
-            pantograph.gripper.close()
-        
-        case 'exit':
-            pantograph.cleanup()
-            break
+# save (OpenCV expects BGR)
+cv2.imwrite(OUT, cv2.cvtColor(out, cv2.COLOR_RGB2BGR))
+print(f"Saved {OUT}")
