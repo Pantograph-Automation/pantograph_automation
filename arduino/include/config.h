@@ -16,7 +16,6 @@
 // Universal configuration constant
 #define UPDATE_RATE 1000
 #define RAD_PER_STEP 0.003926991f
-#define POS_CMD_MAX_ERROR 0.019634955f
 #define PULSE_WIDTH_US 10UL
 #define V_MAX 10.0f                   // rad/s max
 #define ACCEL_MAX 0.1f              // rad/s^2
