@@ -16,16 +16,18 @@ pc = Picamera2()
 pc.configure(pc.create_still_configuration())   # default processed RGB "main"
 pc.start()
 img = pc.capture_array("main")  # HxWx3 RGB uint8
+cv2.imwrite('pre_filter.png', cv2.cvtColor(img, cv2.COLOR_RGB2BGR))
+
 pc.stop()
 
-r = img[..., 0].astype(np.int16)
-g = img[..., 1].astype(np.int16)
-b = img[..., 2].astype(np.int16)
+# r = img[..., 0].astype(np.int16)
+# g = img[..., 1].astype(np.int16)
+# b = img[..., 2].astype(np.int16)
 
-mask = (r >= MIN_RED) & (r >= (R_G_RATIO * g)) & (r >= (R_B_RATIO * b))
-out = np.zeros_like(img)
-out[..., 0] = (img[..., 0] * mask).astype(np.uint8)  # keep red channel where mask true
+# mask = (r >= MIN_RED) & (r >= (R_G_RATIO * g)) & (r >= (R_B_RATIO * b))
+# out = np.zeros_like(img)
+# out[..., 0] = (img[..., 0] * mask).astype(np.uint8)  # keep red channel where mask true
 
-# save (OpenCV expects BGR)
-cv2.imwrite(OUT, cv2.cvtColor(out, cv2.COLOR_RGB2BGR))
-print(f"Saved {OUT}")
+# # save (OpenCV expects BGR)
+# cv2.imwrite(OUT, cv2.cvtColor(out, cv2.COLOR_RGB2BGR))
+# print(f"Saved {OUT}")
