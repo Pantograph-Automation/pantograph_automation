@@ -1,33 +1,91 @@
-#!/usr/bin/env python3
-"""
-Simple capture: grab RGB still from Picamera2, keep only bright red spots, save image.
-"""
-import sys
-from picamera2 import Picamera2
+import pantograph_control as control
 import numpy as np
-import cv2
+import time
+wait = lambda: input("Press Enter to continue >> ")
 
-OUT = sys.argv[1] if len(sys.argv) > 1 else "red_spots.png"
-MIN_RED = 130      # minimum red intensity (0-255)
-R_G_RATIO = 1.3     # R must be > R_G_RATIO * G
-R_B_RATIO = 1.3    # R must be > R_B_RATIO * B
+CALLUSES_IN = [[-0.15, 0.20],
+            [-0.15, 0.21]]
+            # [-0.15, 0.22],
+            # [-0.15, 0.23],
+            # [-0.15, 0.24],
+            # [-0.15, 0.25]]
 
-pc = Picamera2()
-pc.configure(pc.create_still_configuration())   # default processed RGB "main"
-pc.start()
-img = pc.capture_array("main")  # HxWx3 RGB uint8
-cv2.imwrite('pre_filter.png', cv2.cvtColor(img, cv2.COLOR_RGB2BGR))
+HOME = [-0.07, 0.25]
 
-pc.stop()
+UP_HEIGHT = 0.25
 
-# r = img[..., 0].astype(np.int16)
-# g = img[..., 1].astype(np.int16)
-# b = img[..., 2].astype(np.int16)
+GRIP_HEIGHT = 0.0015
+LIFT_HEIGHT = 0.02
 
-# mask = (r >= MIN_RED) & (r >= (R_G_RATIO * g)) & (r >= (R_B_RATIO * b))
-# out = np.zeros_like(img)
-# out[..., 0] = (img[..., 0] * mask).astype(np.uint8)  # keep red channel where mask true
+CALLUSES_OUT = [[p[0] + 0.15, p[1]] for p in CALLUSES_IN]
 
-# # save (OpenCV expects BGR)
-# cv2.imwrite(OUT, cv2.cvtColor(out, cv2.COLOR_RGB2BGR))
-# print(f"Saved {OUT}")
+compute_angles = lambda endpoint : control.compute_joint_angles(
+    control.A1, control.A2, control.A3, control.A4, control.A5,
+    np.array([0.0, 0.0]), endpoint, np.array([-control.A5, 0.0]))
+try:
+    serial_connection = control.SerialConnection("/dev/ttyACM0", 115200)
+except:
+    serial_connection = control.SerialConnection("/dev/ttyACM1", 115200)
+
+result = serial_connection.send_activate()
+
+print(result.status, result.message)
+
+
+result = serial_connection.send_gripper("OPEN")
+time.sleep(0.5)
+result = serial_connection.send_gripper("CLOSE")
+time.sleep(0.5)
+result = serial_connection.send_gripper("OPEN")
+time.sleep(0.5)
+result = serial_connection.send_gripper("CLOSE")
+print(result.status, result.message)
+time.sleep(0.5)
+
+angles = compute_angles(np.array(CALLUSES_IN[0]))
+serial_connection.send_setpoint(angles[1], angles[0], LIFT_HEIGHT)
+wait()
+
+angles = compute_angles(np.array(HOME))
+serial_connection.send_setpoint(angles[1], angles[0], LIFT_HEIGHT)
+result = serial_connection.send_gripper("OPEN")
+time.sleep(1.0)
+
+for index, P in enumerate(CALLUSES_IN):
+
+    # Move above the callus in
+    angles = compute_angles(np.array(P))
+    serial_connection.send_setpoint(angles[1], angles[0], LIFT_HEIGHT)
+    result = serial_connection.send_gripper("OPEN")
+    time.sleep(5.0)
+
+    # Grip the callus
+    serial_connection.send_setpoint(angles[1], angles[0], GRIP_HEIGHT)
+    time.sleep(1.0)
+    result = serial_connection.send_gripper("CLOSE")
+    time.sleep(0.5)
+
+    # Lift the callus
+    serial_connection.send_setpoint(angles[1], angles[0], LIFT_HEIGHT)
+    time.sleep(0.5)
+    
+    # Move to corresponding point out
+    angles = compute_angles(np.array(CALLUSES_OUT[index]))
+    serial_connection.send_setpoint(angles[1], angles[0], LIFT_HEIGHT)
+    time.sleep(5.0)
+
+    # Lower the callus into media
+    serial_connection.send_setpoint(angles[1], angles[0], GRIP_HEIGHT)
+    time.sleep(1.0)
+    result = serial_connection.send_gripper("OPEN")
+    time.sleep(0.5)
+
+    # Lift back out 
+    serial_connection.send_setpoint(angles[1], angles[0], LIFT_HEIGHT)
+    time.sleep(0.5)
+
+
+angles = compute_angles(np.array(HOME))
+serial_connection.send_setpoint(angles[1], angles[0], UP_HEIGHT)
+result = serial_connection.send_gripper("OPEN")
+time.sleep(1.0)
