@@ -225,7 +225,7 @@ QCheckBox::indicator:checked {
       </spacer>
      </item>
      <item>
-      <widget class="QPushButton" name="pushButton">
+      <widget class="QPushButton" name="calibrateButton">
        <property name="minimumSize">
         <size>
          <width>220</width>

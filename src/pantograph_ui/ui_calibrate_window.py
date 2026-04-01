@@ -166,11 +166,11 @@ class Ui_Form(object):
 
         self.horizontalLayout.addItem(self.horizontalSpacer)
 
-        self.pushButton = QPushButton(Form)
-        self.pushButton.setObjectName(u"pushButton")
-        self.pushButton.setMinimumSize(QSize(220, 30))
+        self.calibrateButton = QPushButton(Form)
+        self.calibrateButton.setObjectName(u"calibrateButton")
+        self.calibrateButton.setMinimumSize(QSize(220, 30))
 
-        self.horizontalLayout.addWidget(self.pushButton)
+        self.horizontalLayout.addWidget(self.calibrateButton)
 
         self.horizontalSpacer_2 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
@@ -194,6 +194,6 @@ class Ui_Form(object):
         self.checkBox_2.setText(QCoreApplication.translate("Form", u"Confirm", None))
         self.label_3.setText(QCoreApplication.translate("Form", u"Warning! Once calibration starts, the only way to stop is via the emergency stop!", None))
         self.checkBox_3.setText(QCoreApplication.translate("Form", u"I understand", None))
-        self.pushButton.setText(QCoreApplication.translate("Form", u"Calibrate", None))
+        self.calibrateButton.setText(QCoreApplication.translate("Form", u"Calibrate", None))
     # retranslateUi
 

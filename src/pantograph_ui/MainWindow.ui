@@ -152,7 +152,7 @@ QCheckBox::indicator:checked {
             <number>5</number>
            </property>
            <item>
-            <widget class="QLabel" name="label_11">
+            <widget class="QLabel" name="topStatusLabel">
              <property name="minimumSize">
               <size>
                <width>100</width>
@@ -168,10 +168,13 @@ QCheckBox::indicator:checked {
              <property name="text">
               <string>Calibrated</string>
              </property>
+             <property name="alignment">
+              <set>Qt::AlignmentFlag::AlignCenter</set>
+             </property>
             </widget>
            </item>
            <item>
-            <widget class="QLabel" name="statusLabel2">
+            <widget class="QLabel" name="bottomStatusLabel">
              <property name="minimumSize">
               <size>
                <width>100</width>
@@ -186,6 +189,9 @@ QCheckBox::indicator:checked {
              </property>
              <property name="text">
               <string>Running</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignmentFlag::AlignCenter</set>
              </property>
             </widget>
            </item>
@@ -234,7 +240,7 @@ QCheckBox::indicator:checked {
        <enum>QLayout::SizeConstraint::SetDefaultConstraint</enum>
       </property>
       <item>
-       <widget class="QLabel" name="label">
+       <widget class="QLabel" name="dishLabelA">
         <property name="minimumSize">
          <size>
           <width>150</width>
@@ -256,10 +262,13 @@ QCheckBox::indicator:checked {
         <property name="text">
          <string>Dish A</string>
         </property>
+        <property name="alignment">
+         <set>Qt::AlignmentFlag::AlignCenter</set>
+        </property>
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="label_2">
+       <widget class="QLabel" name="dishLabelB">
         <property name="minimumSize">
          <size>
           <width>150</width>
@@ -281,10 +290,13 @@ QCheckBox::indicator:checked {
         <property name="text">
          <string>Dish B</string>
         </property>
+        <property name="alignment">
+         <set>Qt::AlignmentFlag::AlignCenter</set>
+        </property>
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="label_3">
+       <widget class="QLabel" name="dishLabelC">
         <property name="minimumSize">
          <size>
           <width>150</width>
@@ -306,10 +318,13 @@ QCheckBox::indicator:checked {
         <property name="text">
          <string>Dish C</string>
         </property>
+        <property name="alignment">
+         <set>Qt::AlignmentFlag::AlignCenter</set>
+        </property>
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="label_4">
+       <widget class="QLabel" name="dishLabelD">
         <property name="minimumSize">
          <size>
           <width>150</width>
@@ -330,6 +345,9 @@ QCheckBox::indicator:checked {
         </property>
         <property name="text">
          <string>Dish D</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignmentFlag::AlignCenter</set>
         </property>
        </widget>
       </item>
@@ -387,22 +405,34 @@ QCheckBox::indicator:checked {
          <item>
           <layout class="QVBoxLayout" name="verticalLayout_2">
            <item>
-            <widget class="QLineEdit" name="lineEdit">
+            <widget class="QLineEdit" name="lineEditA">
              <property name="minimumSize">
               <size>
                <width>40</width>
                <height>25</height>
               </size>
              </property>
+             <property name="placeholderText">
+              <string>25</string>
+             </property>
             </widget>
            </item>
            <item>
-            <widget class="QComboBox" name="comboBox">
+            <widget class="QComboBox" name="comboBoxA">
              <property name="minimumSize">
               <size>
                <width>40</width>
                <height>25</height>
               </size>
+             </property>
+             <property name="maxVisibleItems">
+              <number>5</number>
+             </property>
+             <property name="maxCount">
+              <number>5</number>
+             </property>
+             <property name="placeholderText">
+              <string>Type</string>
              </property>
             </widget>
            </item>
@@ -461,22 +491,28 @@ QCheckBox::indicator:checked {
          <item>
           <layout class="QVBoxLayout" name="verticalLayout_3">
            <item>
-            <widget class="QLineEdit" name="lineEdit_2">
+            <widget class="QLineEdit" name="lineEditB">
              <property name="minimumSize">
               <size>
                <width>40</width>
                <height>25</height>
               </size>
              </property>
+             <property name="placeholderText">
+              <string>25</string>
+             </property>
             </widget>
            </item>
            <item>
-            <widget class="QComboBox" name="comboBox_2">
+            <widget class="QComboBox" name="comboBoxB">
              <property name="minimumSize">
               <size>
                <width>40</width>
                <height>25</height>
               </size>
+             </property>
+             <property name="placeholderText">
+              <string>Type</string>
              </property>
             </widget>
            </item>
@@ -535,22 +571,28 @@ QCheckBox::indicator:checked {
          <item>
           <layout class="QVBoxLayout" name="verticalLayout_4">
            <item>
-            <widget class="QLineEdit" name="lineEdit_3">
+            <widget class="QLineEdit" name="lineEditC">
              <property name="minimumSize">
               <size>
                <width>40</width>
                <height>25</height>
               </size>
              </property>
+             <property name="placeholderText">
+              <string>25</string>
+             </property>
             </widget>
            </item>
            <item>
-            <widget class="QComboBox" name="comboBox_3">
+            <widget class="QComboBox" name="comboBoxC">
              <property name="minimumSize">
               <size>
                <width>40</width>
                <height>25</height>
               </size>
+             </property>
+             <property name="placeholderText">
+              <string>Type</string>
              </property>
             </widget>
            </item>
@@ -609,22 +651,28 @@ QCheckBox::indicator:checked {
          <item>
           <layout class="QVBoxLayout" name="verticalLayout_5">
            <item>
-            <widget class="QLineEdit" name="lineEdit_4">
+            <widget class="QLineEdit" name="lineEditD">
              <property name="minimumSize">
               <size>
                <width>40</width>
                <height>25</height>
               </size>
              </property>
+             <property name="placeholderText">
+              <string>25</string>
+             </property>
             </widget>
            </item>
            <item>
-            <widget class="QComboBox" name="comboBox_4">
+            <widget class="QComboBox" name="comboBoxD">
              <property name="minimumSize">
               <size>
                <width>40</width>
                <height>25</height>
               </size>
+             </property>
+             <property name="placeholderText">
+              <string>Type</string>
              </property>
             </widget>
            </item>
@@ -669,7 +717,7 @@ QCheckBox::indicator:checked {
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout_2">
         <item>
-         <widget class="QPushButton" name="pushButton_6">
+         <widget class="QPushButton" name="validateButton">
           <property name="minimumSize">
            <size>
             <width>100</width>
@@ -688,7 +736,7 @@ QCheckBox::indicator:checked {
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="pushButton_5">
+         <widget class="QPushButton" name="calibrateButton">
           <property name="minimumSize">
            <size>
             <width>100</width>
@@ -707,7 +755,7 @@ QCheckBox::indicator:checked {
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="secondaryButton">
+         <widget class="QPushButton" name="runButton">
           <property name="minimumSize">
            <size>
             <width>100</width>
