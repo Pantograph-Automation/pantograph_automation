@@ -422,12 +422,12 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_2 = QHBoxLayout()
         self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
-        self.validateButton = QPushButton(self.centralwidget)
-        self.validateButton.setObjectName(u"validateButton")
-        self.validateButton.setMinimumSize(QSize(100, 40))
-        self.validateButton.setMaximumSize(QSize(100, 40))
+        self.manualButton = QPushButton(self.centralwidget)
+        self.manualButton.setObjectName(u"manualButton")
+        self.manualButton.setMinimumSize(QSize(100, 40))
+        self.manualButton.setMaximumSize(QSize(100, 40))
 
-        self.horizontalLayout_2.addWidget(self.validateButton)
+        self.horizontalLayout_2.addWidget(self.manualButton)
 
         self.calibrateButton = QPushButton(self.centralwidget)
         self.calibrateButton.setObjectName(u"calibrateButton")
@@ -484,7 +484,7 @@ class Ui_MainWindow(object):
         self.label_8.setText(QCoreApplication.translate("MainWindow", u"Dish D", None))
         self.lineEditD.setPlaceholderText(QCoreApplication.translate("MainWindow", u"25", None))
         self.comboBoxD.setPlaceholderText(QCoreApplication.translate("MainWindow", u"Type", None))
-        self.validateButton.setText(QCoreApplication.translate("MainWindow", u"Validate", None))
+        self.manualButton.setText(QCoreApplication.translate("MainWindow", u"Manual", None))
         self.calibrateButton.setText(QCoreApplication.translate("MainWindow", u"Calibrate", None))
         self.runButton.setText(QCoreApplication.translate("MainWindow", u"Run", None))
     # retranslateUi

@@ -19,12 +19,12 @@ from PySide6.QtWidgets import (QApplication, QCheckBox, QHBoxLayout, QLabel,
     QPushButton, QSizePolicy, QSpacerItem, QVBoxLayout,
     QWidget)
 
-class Ui_Form(object):
-    def setupUi(self, Form):
-        if not Form.objectName():
-            Form.setObjectName(u"Form")
-        Form.resize(380, 364)
-        Form.setStyleSheet(u"/* --- Global & Base Widget --- */\n"
+class Ui_CalibrateWindow(object):
+    def setupUi(self, CalibrateWindow):
+        if not CalibrateWindow.objectName():
+            CalibrateWindow.setObjectName(u"CalibrateWindow")
+        CalibrateWindow.resize(380, 364)
+        CalibrateWindow.setStyleSheet(u"/* --- Global & Base Widget --- */\n"
 "QWidget {\n"
 "    background-color: #ffffff;\n"
 "    color: #333333;\n"
@@ -105,9 +105,9 @@ class Ui_Form(object):
 "    /* Note: To show a checkmark icon, you would typically \n"
 "       reference a resource file image here */\n"
 "}")
-        self.verticalLayout_2 = QVBoxLayout(Form)
+        self.verticalLayout_2 = QVBoxLayout(CalibrateWindow)
         self.verticalLayout_2.setObjectName(u"verticalLayout_2")
-        self.headerLabel = QLabel(Form)
+        self.headerLabel = QLabel(CalibrateWindow)
         self.headerLabel.setObjectName(u"headerLabel")
         self.headerLabel.setMinimumSize(QSize(270, 30))
 
@@ -115,7 +115,7 @@ class Ui_Form(object):
 
         self.verticalLayout = QVBoxLayout()
         self.verticalLayout.setObjectName(u"verticalLayout")
-        self.label = QLabel(Form)
+        self.label = QLabel(CalibrateWindow)
         self.label.setObjectName(u"label")
         self.label.setMinimumSize(QSize(360, 40))
         self.label.setTextFormat(Qt.TextFormat.MarkdownText)
@@ -123,13 +123,13 @@ class Ui_Form(object):
 
         self.verticalLayout.addWidget(self.label)
 
-        self.checkBox = QCheckBox(Form)
+        self.checkBox = QCheckBox(CalibrateWindow)
         self.checkBox.setObjectName(u"checkBox")
         self.checkBox.setMinimumSize(QSize(360, 40))
 
         self.verticalLayout.addWidget(self.checkBox)
 
-        self.label_2 = QLabel(Form)
+        self.label_2 = QLabel(CalibrateWindow)
         self.label_2.setObjectName(u"label_2")
         self.label_2.setMinimumSize(QSize(360, 40))
         self.label_2.setTextFormat(Qt.TextFormat.MarkdownText)
@@ -137,13 +137,13 @@ class Ui_Form(object):
 
         self.verticalLayout.addWidget(self.label_2)
 
-        self.checkBox_2 = QCheckBox(Form)
+        self.checkBox_2 = QCheckBox(CalibrateWindow)
         self.checkBox_2.setObjectName(u"checkBox_2")
         self.checkBox_2.setMinimumSize(QSize(360, 40))
 
         self.verticalLayout.addWidget(self.checkBox_2)
 
-        self.label_3 = QLabel(Form)
+        self.label_3 = QLabel(CalibrateWindow)
         self.label_3.setObjectName(u"label_3")
         self.label_3.setMinimumSize(QSize(360, 40))
         self.label_3.setTextFormat(Qt.TextFormat.MarkdownText)
@@ -151,7 +151,7 @@ class Ui_Form(object):
 
         self.verticalLayout.addWidget(self.label_3)
 
-        self.checkBox_3 = QCheckBox(Form)
+        self.checkBox_3 = QCheckBox(CalibrateWindow)
         self.checkBox_3.setObjectName(u"checkBox_3")
         self.checkBox_3.setMinimumSize(QSize(360, 40))
 
@@ -166,7 +166,7 @@ class Ui_Form(object):
 
         self.horizontalLayout.addItem(self.horizontalSpacer)
 
-        self.calibrateButton = QPushButton(Form)
+        self.calibrateButton = QPushButton(CalibrateWindow)
         self.calibrateButton.setObjectName(u"calibrateButton")
         self.calibrateButton.setMinimumSize(QSize(220, 30))
 
@@ -180,20 +180,20 @@ class Ui_Form(object):
         self.verticalLayout_2.addLayout(self.horizontalLayout)
 
 
-        self.retranslateUi(Form)
+        self.retranslateUi(CalibrateWindow)
 
-        QMetaObject.connectSlotsByName(Form)
+        QMetaObject.connectSlotsByName(CalibrateWindow)
     # setupUi
 
-    def retranslateUi(self, Form):
-        Form.setWindowTitle(QCoreApplication.translate("Form", u"Form", None))
-        self.headerLabel.setText(QCoreApplication.translate("Form", u"Calibration", None))
-        self.label.setText(QCoreApplication.translate("Form", u"Confirm that the arms are approximately in the desired configuration (shown on the right)", None))
-        self.checkBox.setText(QCoreApplication.translate("Form", u"Confirm", None))
-        self.label_2.setText(QCoreApplication.translate("Form", u"Confirm that there are no dishes in the transfer area", None))
-        self.checkBox_2.setText(QCoreApplication.translate("Form", u"Confirm", None))
-        self.label_3.setText(QCoreApplication.translate("Form", u"Warning! Once calibration starts, the only way to stop is via the emergency stop!", None))
-        self.checkBox_3.setText(QCoreApplication.translate("Form", u"I understand", None))
-        self.calibrateButton.setText(QCoreApplication.translate("Form", u"Calibrate", None))
+    def retranslateUi(self, CalibrateWindow):
+        CalibrateWindow.setWindowTitle(QCoreApplication.translate("CalibrateWindow", u"Form", None))
+        self.headerLabel.setText(QCoreApplication.translate("CalibrateWindow", u"Calibration", None))
+        self.label.setText(QCoreApplication.translate("CalibrateWindow", u"Confirm that the arms are approximately in the desired configuration (shown on the right)", None))
+        self.checkBox.setText(QCoreApplication.translate("CalibrateWindow", u"Confirm", None))
+        self.label_2.setText(QCoreApplication.translate("CalibrateWindow", u"Confirm that there are no dishes in the transfer area", None))
+        self.checkBox_2.setText(QCoreApplication.translate("CalibrateWindow", u"Confirm", None))
+        self.label_3.setText(QCoreApplication.translate("CalibrateWindow", u"Warning! Once calibration starts, the only way to stop is via the emergency stop!", None))
+        self.checkBox_3.setText(QCoreApplication.translate("CalibrateWindow", u"I understand", None))
+        self.calibrateButton.setText(QCoreApplication.translate("CalibrateWindow", u"Calibrate", None))
     # retranslateUi
 
