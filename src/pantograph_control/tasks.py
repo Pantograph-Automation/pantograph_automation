@@ -8,7 +8,6 @@ from typing import Callable
 import numpy as np
 from PySide6.QtCore import QObject, Signal
 
-from . import A1, A2, A3, A4, A5
 from .camera import (
     MASK_RADIUS_RATIO,
     MASK_X_OFFSET,
@@ -17,6 +16,20 @@ from .camera import (
     process_frame,
 )
 from .kinematics import compute_joint_angles
+from .mechanics import (
+    A1,
+    A2,
+    A3,
+    A4,
+    A5,
+    BASE_P1,
+    BASE_P5,
+    JOINT_LIMIT_TOL,
+    THETA1_MAX,
+    THETA1_MIN,
+    THETA5_MAX,
+    THETA5_MIN,
+)
 from .serial_interface import SerialConnection, SerialReturn
 
 
@@ -48,6 +61,7 @@ class DetectedCluster:
 class PrototypeConfig:
     serial_ports: tuple[str, ...] = ("/dev/ttyACM0", "/dev/ttyACM1", "COM3", "COM4")
     baudrate: int = 115200
+    finished_timeout: float = 15.0
     safe_home_xy: Point = (-0.07, 0.25)
     up_height: float = 0.25
     lift_height: float = 0.02
@@ -295,8 +309,14 @@ class PantographController(QObject):
     def _move_to_xy(self, xy: Point, z: float) -> None:
         self._ensure_connection()
         theta1, theta5 = self._compute_angles(xy)
+        self._validate_joint_limits(xy, theta1, theta5)
         result = self.connection.send_setpoint(theta5, theta1, z)
         self._require_ok(result, f"Failed to move to x={xy[0]:.4f}, y={xy[1]:.4f}, z={z:.4f}.")
+        finished = self.connection.wait_for_finished(timeout=self.config.finished_timeout)
+        self._require_ok(
+            finished,
+            f"Timed out or failed while waiting for FINISHED at x={xy[0]:.4f}, y={xy[1]:.4f}, z={z:.4f}.",
+        )
         self._set_pose(RobotPose(x=xy[0], y=xy[1], z=z, theta1=theta1, theta5=theta5))
 
     def _compute_angles(self, xy: Point) -> tuple[float, float]:
@@ -306,10 +326,28 @@ class PantographController(QObject):
             A3,
             A4,
             A5,
-            np.array([0.0, 0.0]),
+            np.array(BASE_P1, dtype=np.float64),
             np.array([xy[0], xy[1]]),
-            np.array([-A5, 0.0]),
+            np.array(BASE_P5, dtype=np.float64),
         )
+
+    def _validate_joint_limits(self, xy: Point, theta1: float, theta5: float) -> None:
+        violations: list[str] = []
+
+        if theta1 < THETA1_MIN - JOINT_LIMIT_TOL or theta1 > THETA1_MAX + JOINT_LIMIT_TOL:
+            violations.append(
+                f"theta1={theta1:.4f} rad outside [{THETA1_MIN:.4f}, {THETA1_MAX:.4f}]"
+            )
+        if theta5 < THETA5_MIN - JOINT_LIMIT_TOL or theta5 > THETA5_MAX + JOINT_LIMIT_TOL:
+            violations.append(
+                f"theta5={theta5:.4f} rad outside [{THETA5_MIN:.4f}, {THETA5_MAX:.4f}]"
+            )
+
+        if violations:
+            raise TaskError(
+                f"Target x={xy[0]:.4f}, y={xy[1]:.4f} violates mechanical joint limits: "
+                + "; ".join(violations)
+            )
 
     def _send_command(
         self,
