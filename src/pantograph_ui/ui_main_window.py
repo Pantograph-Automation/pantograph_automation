@@ -24,7 +24,7 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(680, 499)
+        MainWindow.resize(680, 443)
         MainWindow.setStyleSheet(u"/* --- Global & Base Widget --- */\n"
 "QWidget {\n"
 "    background-color: #ffffff;\n"
@@ -178,11 +178,11 @@ class Ui_MainWindow(object):
         self.horizontalLayout.setSizeConstraint(QLayout.SizeConstraint.SetDefaultConstraint)
         self.dishLabelA = QLabel(self.centralwidget)
         self.dishLabelA.setObjectName(u"dishLabelA")
-        self.dishLabelA.setMinimumSize(QSize(150, 150))
-        self.dishLabelA.setMaximumSize(QSize(150, 150))
+        self.dishLabelA.setMinimumSize(QSize(100, 100))
+        self.dishLabelA.setMaximumSize(QSize(100, 100))
         self.dishLabelA.setStyleSheet(u"QLabel {\n"
 "    background-color: black;\n"
-"    border-radius: 75px;  /* makes a circle if width = height */\n"
+"    border-radius: 50px;  /* makes a circle if width = height */\n"
 "}")
         self.dishLabelA.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
@@ -190,11 +190,11 @@ class Ui_MainWindow(object):
 
         self.dishLabelB = QLabel(self.centralwidget)
         self.dishLabelB.setObjectName(u"dishLabelB")
-        self.dishLabelB.setMinimumSize(QSize(150, 150))
-        self.dishLabelB.setMaximumSize(QSize(150, 150))
+        self.dishLabelB.setMinimumSize(QSize(100, 100))
+        self.dishLabelB.setMaximumSize(QSize(100, 100))
         self.dishLabelB.setStyleSheet(u"QLabel {\n"
 "    background-color: black;\n"
-"    border-radius: 75px;  /* makes a circle if width = height */\n"
+"    border-radius: 50px;  /* makes a circle if width = height */\n"
 "}")
         self.dishLabelB.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
@@ -202,11 +202,11 @@ class Ui_MainWindow(object):
 
         self.dishLabelC = QLabel(self.centralwidget)
         self.dishLabelC.setObjectName(u"dishLabelC")
-        self.dishLabelC.setMinimumSize(QSize(150, 150))
-        self.dishLabelC.setMaximumSize(QSize(150, 150))
+        self.dishLabelC.setMinimumSize(QSize(100, 100))
+        self.dishLabelC.setMaximumSize(QSize(100, 100))
         self.dishLabelC.setStyleSheet(u"QLabel {\n"
 "    background-color: black;\n"
-"    border-radius: 75px;  /* makes a circle if width = height */\n"
+"    border-radius: 50px;  /* makes a circle if width = height */\n"
 "}")
         self.dishLabelC.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
@@ -214,12 +214,13 @@ class Ui_MainWindow(object):
 
         self.dishLabelD = QLabel(self.centralwidget)
         self.dishLabelD.setObjectName(u"dishLabelD")
-        self.dishLabelD.setMinimumSize(QSize(150, 150))
-        self.dishLabelD.setMaximumSize(QSize(150, 150))
+        self.dishLabelD.setMinimumSize(QSize(100, 100))
+        self.dishLabelD.setMaximumSize(QSize(100, 100))
         self.dishLabelD.setStyleSheet(u"QLabel {\n"
 "    background-color: black;\n"
-"    border-radius: 75px;  /* makes a circle if width = height */\n"
-"}")
+"    border-radius: 50px;  /* makes a circle if width = height */\n"
+"}\n"
+"")
         self.dishLabelD.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.horizontalLayout.addWidget(self.dishLabelD)

@@ -23,9 +23,9 @@ class Ui_ManualWindow(object):
     def setupUi(self, ManualWindow):
         if not ManualWindow.objectName():
             ManualWindow.setObjectName(u"ManualWindow")
-        ManualWindow.resize(400, 250)
-        ManualWindow.setMinimumSize(QSize(400, 0))
-        ManualWindow.setMaximumSize(QSize(400, 250))
+        ManualWindow.resize(600, 400)
+        ManualWindow.setMinimumSize(QSize(600, 400))
+        ManualWindow.setMaximumSize(QSize(600, 400))
         ManualWindow.setStyleSheet(u"/* --- Global & Base Widget --- */\n"
 "QWidget {\n"
 "    background-color: #ffffff;\n"
@@ -109,9 +109,9 @@ class Ui_ManualWindow(object):
 "}")
         self.frame = QFrame(ManualWindow)
         self.frame.setObjectName(u"frame")
-        self.frame.setGeometry(QRect(200, 40, 130, 130))
-        self.frame.setMinimumSize(QSize(130, 130))
-        self.frame.setMaximumSize(QSize(150, 150))
+        self.frame.setGeometry(QRect(210, 40, 300, 300))
+        self.frame.setMinimumSize(QSize(300, 300))
+        self.frame.setMaximumSize(QSize(300, 300))
         self.frame.setFrameShape(QFrame.Shape.StyledPanel)
         self.frame.setFrameShadow(QFrame.Shadow.Raised)
         self.horizontalLayout = QHBoxLayout(self.frame)
@@ -124,8 +124,8 @@ class Ui_ManualWindow(object):
 
         self.posXButton = QPushButton(self.frame)
         self.posXButton.setObjectName(u"posXButton")
-        self.posXButton.setMinimumSize(QSize(30, 30))
-        self.posXButton.setMaximumSize(QSize(30, 30))
+        self.posXButton.setMinimumSize(QSize(60, 60))
+        self.posXButton.setMaximumSize(QSize(60, 60))
 
         self.verticalLayout_4.addWidget(self.posXButton)
 
@@ -140,27 +140,15 @@ class Ui_ManualWindow(object):
         self.verticalLayout_2.setObjectName(u"verticalLayout_2")
         self.negYButton = QPushButton(self.frame)
         self.negYButton.setObjectName(u"negYButton")
-        self.negYButton.setMinimumSize(QSize(30, 30))
-        self.negYButton.setMaximumSize(QSize(30, 30))
+        self.negYButton.setMinimumSize(QSize(60, 60))
+        self.negYButton.setMaximumSize(QSize(60, 60))
 
         self.verticalLayout_2.addWidget(self.negYButton)
 
-        self.label = QLabel(self.frame)
-        self.label.setObjectName(u"label")
-        self.label.setMinimumSize(QSize(30, 30))
-        self.label.setMaximumSize(QSize(30, 30))
-        self.label.setStyleSheet(u"QLabel {\n"
-"    background-color: white;\n"
-"    border-radius: 15px;\n"
-"    border: 2px solid black;\n"
-"}")
-
-        self.verticalLayout_2.addWidget(self.label)
-
         self.posYButton = QPushButton(self.frame)
         self.posYButton.setObjectName(u"posYButton")
-        self.posYButton.setMinimumSize(QSize(30, 30))
-        self.posYButton.setMaximumSize(QSize(30, 30))
+        self.posYButton.setMinimumSize(QSize(60, 60))
+        self.posYButton.setMaximumSize(QSize(60, 60))
 
         self.verticalLayout_2.addWidget(self.posYButton)
 
@@ -175,8 +163,8 @@ class Ui_ManualWindow(object):
 
         self.negXButton = QPushButton(self.frame)
         self.negXButton.setObjectName(u"negXButton")
-        self.negXButton.setMinimumSize(QSize(30, 30))
-        self.negXButton.setMaximumSize(QSize(30, 30))
+        self.negXButton.setMinimumSize(QSize(60, 60))
+        self.negXButton.setMaximumSize(QSize(60, 60))
 
         self.verticalLayout_3.addWidget(self.negXButton)
 
@@ -187,70 +175,28 @@ class Ui_ManualWindow(object):
 
         self.horizontalLayout.addLayout(self.verticalLayout_3)
 
-        self.frame_2 = QFrame(ManualWindow)
-        self.frame_2.setObjectName(u"frame_2")
-        self.frame_2.setGeometry(QRect(330, 40, 50, 130))
-        self.frame_2.setMinimumSize(QSize(50, 130))
-        self.frame_2.setMaximumSize(QSize(50, 150))
-        self.frame_2.setFrameShape(QFrame.Shape.StyledPanel)
-        self.frame_2.setFrameShadow(QFrame.Shadow.Raised)
-        self.horizontalLayout_2 = QHBoxLayout(self.frame_2)
-        self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
-        self.verticalLayout = QVBoxLayout()
-        self.verticalLayout.setObjectName(u"verticalLayout")
-        self.posZButton = QPushButton(self.frame_2)
-        self.posZButton.setObjectName(u"posZButton")
-        self.posZButton.setMinimumSize(QSize(30, 30))
-        self.posZButton.setMaximumSize(QSize(30, 30))
-
-        self.verticalLayout.addWidget(self.posZButton)
-
-        self.label_2 = QLabel(self.frame_2)
-        self.label_2.setObjectName(u"label_2")
-        self.label_2.setMinimumSize(QSize(30, 30))
-        self.label_2.setMaximumSize(QSize(30, 30))
-        self.label_2.setStyleSheet(u"QLabel {\n"
-"    background-color: white;\n"
-"    border-radius: 15px;\n"
-"    border: 2px solid black;\n"
-"}")
-
-        self.verticalLayout.addWidget(self.label_2)
-
-        self.negZButton = QPushButton(self.frame_2)
-        self.negZButton.setObjectName(u"negZButton")
-        self.negZButton.setMinimumSize(QSize(30, 30))
-        self.negZButton.setMaximumSize(QSize(30, 30))
-
-        self.verticalLayout.addWidget(self.negZButton)
-
-
-        self.horizontalLayout_2.addLayout(self.verticalLayout)
-
         self.xLabel = QLabel(ManualWindow)
         self.xLabel.setObjectName(u"xLabel")
-        self.xLabel.setGeometry(QRect(150, 90, 51, 31))
+        self.xLabel.setGeometry(QRect(170, 170, 51, 31))
         self.xLabel.setStyleSheet(u"QLabel {\n"
 "	background-color: white;\n"
-"    border: 4px solid black;\n"
 "    font-weight: bold;\n"
 "	color: black;\n"
 "}")
         self.yLabel = QLabel(ManualWindow)
         self.yLabel.setObjectName(u"yLabel")
-        self.yLabel.setGeometry(QRect(240, 170, 51, 31))
+        self.yLabel.setGeometry(QRect(530, 60, 51, 31))
         self.yLabel.setStyleSheet(u"QLabel {\n"
 "	background-color: white;\n"
-"    border: 4px solid black;\n"
 "    font-weight: bold;\n"
 "	color: black;\n"
 "}")
+        self.yLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.zLabel = QLabel(ManualWindow)
         self.zLabel.setObjectName(u"zLabel")
-        self.zLabel.setGeometry(QRect(330, 10, 51, 31))
+        self.zLabel.setGeometry(QRect(340, 10, 51, 31))
         self.zLabel.setStyleSheet(u"QLabel {\n"
 "	background-color: white;\n"
-"    border: 4px solid black;\n"
 "    font-weight: bold;\n"
 "	color: black;\n"
 "}")
@@ -258,15 +204,15 @@ class Ui_ManualWindow(object):
         self.headerLabel.setObjectName(u"headerLabel")
         self.headerLabel.setGeometry(QRect(10, 10, 270, 30))
         self.headerLabel.setMinimumSize(QSize(270, 30))
-        self.widget = QWidget(ManualWindow)
-        self.widget.setObjectName(u"widget")
-        self.widget.setGeometry(QRect(30, 140, 89, 72))
-        self.verticalLayout_5 = QVBoxLayout(self.widget)
+        self.layoutWidget = QWidget(ManualWindow)
+        self.layoutWidget.setObjectName(u"layoutWidget")
+        self.layoutWidget.setGeometry(QRect(30, 140, 89, 72))
+        self.verticalLayout_5 = QVBoxLayout(self.layoutWidget)
         self.verticalLayout_5.setObjectName(u"verticalLayout_5")
         self.verticalLayout_5.setContentsMargins(0, 0, 0, 0)
         self.horizontalLayout_3 = QHBoxLayout()
         self.horizontalLayout_3.setObjectName(u"horizontalLayout_3")
-        self.label_8 = QLabel(self.widget)
+        self.label_8 = QLabel(self.layoutWidget)
         self.label_8.setObjectName(u"label_8")
         self.label_8.setMinimumSize(QSize(30, 30))
         self.label_8.setMaximumSize(QSize(30, 30))
@@ -281,11 +227,10 @@ class Ui_ManualWindow(object):
 
         self.horizontalLayout_3.addWidget(self.label_8)
 
-        self.j1Label = QLabel(self.widget)
+        self.j1Label = QLabel(self.layoutWidget)
         self.j1Label.setObjectName(u"j1Label")
         self.j1Label.setStyleSheet(u"QLabel {\n"
 "	background-color: white;\n"
-"    border: 4px solid black;\n"
 "    font-weight: bold;\n"
 "	color: black;\n"
 "}")
@@ -297,7 +242,7 @@ class Ui_ManualWindow(object):
 
         self.horizontalLayout_4 = QHBoxLayout()
         self.horizontalLayout_4.setObjectName(u"horizontalLayout_4")
-        self.label_9 = QLabel(self.widget)
+        self.label_9 = QLabel(self.layoutWidget)
         self.label_9.setObjectName(u"label_9")
         self.label_9.setMinimumSize(QSize(30, 30))
         self.label_9.setMaximumSize(QSize(30, 30))
@@ -312,11 +257,10 @@ class Ui_ManualWindow(object):
 
         self.horizontalLayout_4.addWidget(self.label_9)
 
-        self.j2Label = QLabel(self.widget)
+        self.j2Label = QLabel(self.layoutWidget)
         self.j2Label.setObjectName(u"j2Label")
         self.j2Label.setStyleSheet(u"QLabel {\n"
 "	background-color: white;\n"
-"    border: 4px solid black;\n"
 "    font-weight: bold;\n"
 "	color: black;\n"
 "}")
@@ -326,29 +270,48 @@ class Ui_ManualWindow(object):
 
         self.verticalLayout_5.addLayout(self.horizontalLayout_4)
 
-        self.widget1 = QWidget(ManualWindow)
-        self.widget1.setObjectName(u"widget1")
-        self.widget1.setGeometry(QRect(60, 220, 291, 24))
-        self.horizontalLayout_5 = QHBoxLayout(self.widget1)
+        self.layoutWidget1 = QWidget(ManualWindow)
+        self.layoutWidget1.setObjectName(u"layoutWidget1")
+        self.layoutWidget1.setGeometry(QRect(160, 350, 291, 24))
+        self.horizontalLayout_5 = QHBoxLayout(self.layoutWidget1)
         self.horizontalLayout_5.setObjectName(u"horizontalLayout_5")
         self.horizontalLayout_5.setContentsMargins(0, 0, 0, 0)
-        self.horizontalSlider = QSlider(self.widget1)
+        self.horizontalSlider = QSlider(self.layoutWidget1)
         self.horizontalSlider.setObjectName(u"horizontalSlider")
         self.horizontalSlider.setMaximum(999)
         self.horizontalSlider.setOrientation(Qt.Orientation.Horizontal)
 
         self.horizontalLayout_5.addWidget(self.horizontalSlider)
 
-        self.yLabel_2 = QLabel(self.widget1)
+        self.yLabel_2 = QLabel(self.layoutWidget1)
         self.yLabel_2.setObjectName(u"yLabel_2")
         self.yLabel_2.setStyleSheet(u"QLabel {\n"
 "	background-color: white;\n"
-"    border: 4px solid black;\n"
 "    font-weight: bold;\n"
 "	color: black;\n"
 "}")
 
         self.horizontalLayout_5.addWidget(self.yLabel_2)
+
+        self.widget = QWidget(ManualWindow)
+        self.widget.setObjectName(u"widget")
+        self.widget.setGeometry(QRect(520, 90, 61, 211))
+        self.verticalLayout = QVBoxLayout(self.widget)
+        self.verticalLayout.setObjectName(u"verticalLayout")
+        self.verticalLayout.setContentsMargins(0, 0, 0, 0)
+        self.posZButton = QPushButton(self.widget)
+        self.posZButton.setObjectName(u"posZButton")
+        self.posZButton.setMinimumSize(QSize(60, 60))
+        self.posZButton.setMaximumSize(QSize(60, 60))
+
+        self.verticalLayout.addWidget(self.posZButton)
+
+        self.negZButton = QPushButton(self.widget)
+        self.negZButton.setObjectName(u"negZButton")
+        self.negZButton.setMinimumSize(QSize(60, 60))
+        self.negZButton.setMaximumSize(QSize(60, 60))
+
+        self.verticalLayout.addWidget(self.negZButton)
 
 
         self.retranslateUi(ManualWindow)
@@ -360,12 +323,8 @@ class Ui_ManualWindow(object):
         ManualWindow.setWindowTitle(QCoreApplication.translate("ManualWindow", u"Form", None))
         self.posXButton.setText(QCoreApplication.translate("ManualWindow", u"+x", None))
         self.negYButton.setText(QCoreApplication.translate("ManualWindow", u"-y", None))
-        self.label.setText("")
         self.posYButton.setText(QCoreApplication.translate("ManualWindow", u"+y", None))
         self.negXButton.setText(QCoreApplication.translate("ManualWindow", u"-x", None))
-        self.posZButton.setText(QCoreApplication.translate("ManualWindow", u"+z", None))
-        self.label_2.setText("")
-        self.negZButton.setText(QCoreApplication.translate("ManualWindow", u"-z", None))
         self.xLabel.setText(QCoreApplication.translate("ManualWindow", u"0.0 m", None))
         self.yLabel.setText(QCoreApplication.translate("ManualWindow", u"0.0 m", None))
         self.zLabel.setText(QCoreApplication.translate("ManualWindow", u"0.0 m", None))
@@ -375,5 +334,7 @@ class Ui_ManualWindow(object):
         self.label_9.setText(QCoreApplication.translate("ManualWindow", u"J2", None))
         self.j2Label.setText(QCoreApplication.translate("ManualWindow", u"0.0 deg", None))
         self.yLabel_2.setText(QCoreApplication.translate("ManualWindow", u"0.01 m", None))
+        self.posZButton.setText(QCoreApplication.translate("ManualWindow", u"+z", None))
+        self.negZButton.setText(QCoreApplication.translate("ManualWindow", u"-z", None))
     # retranslateUi
 

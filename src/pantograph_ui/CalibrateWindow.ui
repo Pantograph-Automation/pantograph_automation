@@ -163,7 +163,7 @@ QCheckBox::indicator:checked {
       </widget>
      </item>
      <item>
-      <widget class="QCheckBox" name="checkBox_2">
+      <widget class="QCheckBox" name="checkBox2">
        <property name="minimumSize">
         <size>
          <width>360</width>
@@ -195,7 +195,7 @@ QCheckBox::indicator:checked {
       </widget>
      </item>
      <item>
-      <widget class="QCheckBox" name="checkBox_3">
+      <widget class="QCheckBox" name="checkBox3">
        <property name="minimumSize">
         <size>
          <width>360</width>

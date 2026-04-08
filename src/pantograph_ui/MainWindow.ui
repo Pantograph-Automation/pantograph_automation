@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>680</width>
-    <height>499</height>
+    <height>443</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -243,20 +243,20 @@ QCheckBox::indicator:checked {
        <widget class="QLabel" name="dishLabelA">
         <property name="minimumSize">
          <size>
-          <width>150</width>
-          <height>150</height>
+          <width>100</width>
+          <height>100</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>150</width>
-          <height>150</height>
+          <width>100</width>
+          <height>100</height>
          </size>
         </property>
         <property name="styleSheet">
          <string notr="true">QLabel {
     background-color: black;
-    border-radius: 75px;  /* makes a circle if width = height */
+    border-radius: 50px;  /* makes a circle if width = height */
 }</string>
         </property>
         <property name="text">
@@ -271,20 +271,20 @@ QCheckBox::indicator:checked {
        <widget class="QLabel" name="dishLabelB">
         <property name="minimumSize">
          <size>
-          <width>150</width>
-          <height>150</height>
+          <width>100</width>
+          <height>100</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>150</width>
-          <height>150</height>
+          <width>100</width>
+          <height>100</height>
          </size>
         </property>
         <property name="styleSheet">
          <string notr="true">QLabel {
     background-color: black;
-    border-radius: 75px;  /* makes a circle if width = height */
+    border-radius: 50px;  /* makes a circle if width = height */
 }</string>
         </property>
         <property name="text">
@@ -299,20 +299,20 @@ QCheckBox::indicator:checked {
        <widget class="QLabel" name="dishLabelC">
         <property name="minimumSize">
          <size>
-          <width>150</width>
-          <height>150</height>
+          <width>100</width>
+          <height>100</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>150</width>
-          <height>150</height>
+          <width>100</width>
+          <height>100</height>
          </size>
         </property>
         <property name="styleSheet">
          <string notr="true">QLabel {
     background-color: black;
-    border-radius: 75px;  /* makes a circle if width = height */
+    border-radius: 50px;  /* makes a circle if width = height */
 }</string>
         </property>
         <property name="text">
@@ -327,21 +327,22 @@ QCheckBox::indicator:checked {
        <widget class="QLabel" name="dishLabelD">
         <property name="minimumSize">
          <size>
-          <width>150</width>
-          <height>150</height>
+          <width>100</width>
+          <height>100</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>150</width>
-          <height>150</height>
+          <width>100</width>
+          <height>100</height>
          </size>
         </property>
         <property name="styleSheet">
          <string notr="true">QLabel {
     background-color: black;
-    border-radius: 75px;  /* makes a circle if width = height */
-}</string>
+    border-radius: 50px;  /* makes a circle if width = height */
+}
+</string>
         </property>
         <property name="text">
          <string>Dish D</string>

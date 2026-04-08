@@ -137,11 +137,11 @@ class Ui_CalibrateWindow(object):
 
         self.verticalLayout.addWidget(self.label_2)
 
-        self.checkBox_2 = QCheckBox(CalibrateWindow)
-        self.checkBox_2.setObjectName(u"checkBox_2")
-        self.checkBox_2.setMinimumSize(QSize(360, 40))
+        self.checkBox2 = QCheckBox(CalibrateWindow)
+        self.checkBox2.setObjectName(u"checkBox2")
+        self.checkBox2.setMinimumSize(QSize(360, 40))
 
-        self.verticalLayout.addWidget(self.checkBox_2)
+        self.verticalLayout.addWidget(self.checkBox2)
 
         self.label_3 = QLabel(CalibrateWindow)
         self.label_3.setObjectName(u"label_3")
@@ -151,11 +151,11 @@ class Ui_CalibrateWindow(object):
 
         self.verticalLayout.addWidget(self.label_3)
 
-        self.checkBox_3 = QCheckBox(CalibrateWindow)
-        self.checkBox_3.setObjectName(u"checkBox_3")
-        self.checkBox_3.setMinimumSize(QSize(360, 40))
+        self.checkBox3 = QCheckBox(CalibrateWindow)
+        self.checkBox3.setObjectName(u"checkBox3")
+        self.checkBox3.setMinimumSize(QSize(360, 40))
 
-        self.verticalLayout.addWidget(self.checkBox_3)
+        self.verticalLayout.addWidget(self.checkBox3)
 
 
         self.verticalLayout_2.addLayout(self.verticalLayout)
@@ -191,9 +191,9 @@ class Ui_CalibrateWindow(object):
         self.label.setText(QCoreApplication.translate("CalibrateWindow", u"Confirm that the arms are approximately in the desired configuration (shown on the right)", None))
         self.checkBox.setText(QCoreApplication.translate("CalibrateWindow", u"Confirm", None))
         self.label_2.setText(QCoreApplication.translate("CalibrateWindow", u"Confirm that there are no dishes in the transfer area", None))
-        self.checkBox_2.setText(QCoreApplication.translate("CalibrateWindow", u"Confirm", None))
+        self.checkBox2.setText(QCoreApplication.translate("CalibrateWindow", u"Confirm", None))
         self.label_3.setText(QCoreApplication.translate("CalibrateWindow", u"Warning! Once calibration starts, the only way to stop is via the emergency stop!", None))
-        self.checkBox_3.setText(QCoreApplication.translate("CalibrateWindow", u"I understand", None))
+        self.checkBox3.setText(QCoreApplication.translate("CalibrateWindow", u"I understand", None))
         self.calibrateButton.setText(QCoreApplication.translate("CalibrateWindow", u"Calibrate", None))
     # retranslateUi
 

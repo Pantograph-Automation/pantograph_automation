@@ -1,7 +1,11 @@
 import cv2
 import numpy as np
 import math
-from picamera2 import Picamera2
+
+try:
+    from picamera2 import Picamera2
+except ImportError:  # pragma: no cover - hardware dependency
+    Picamera2 = None
 
 # --- TUNABLE PARAMETERS ---
 MASK_RADIUS_RATIO = 0.37 
@@ -75,6 +79,9 @@ def process_frame(frame, x_off=0, y_off=0, rad_ratio=0.45):
     return _extract_centroids(frame, clean_mask)
 
 def capture_frame():
+    if Picamera2 is None:
+        raise RuntimeError("Picamera2 is unavailable. Camera capture must run on the Raspberry Pi environment.")
+
     pc = Picamera2()
     pc.configure(pc.create_still_configuration())   # default processed RGB "main"
     pc.start()

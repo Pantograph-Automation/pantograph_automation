@@ -9,6 +9,7 @@ A5 = 0.11
 # from .camera import *
 from .kinematics import *
 from .serial_interface import *
+from .tasks import *
 
 
 
