@@ -233,7 +233,10 @@ class PantographController(QObject):
 
     def _calibrate_impl(self) -> str:
         self._ensure_connection()
-        self._send_command(self.connection.send_activate, "Failed to activate pantograph.")
+        self._send_command(
+            lambda: self.connection.send_activate(timeout=self.config.finished_timeout),
+            "Failed to activate pantograph.",
+        )
         self._send_command(lambda: self.connection.send_gripper("OPEN"), "Failed to open gripper during calibration.")
         self._move_to_xy(self.config.safe_home_xy, self.config.up_height)
         self._set_status(calibrated=True)
@@ -310,13 +313,13 @@ class PantographController(QObject):
         self._ensure_connection()
         theta1, theta5 = self._compute_angles(xy)
         self._validate_joint_limits(xy, theta1, theta5)
-        result = self.connection.send_setpoint(theta5, theta1, z)
-        self._require_ok(result, f"Failed to move to x={xy[0]:.4f}, y={xy[1]:.4f}, z={z:.4f}.")
-        finished = self.connection.wait_for_finished(timeout=self.config.finished_timeout)
-        self._require_ok(
-            finished,
-            f"Timed out or failed while waiting for FINISHED at x={xy[0]:.4f}, y={xy[1]:.4f}, z={z:.4f}.",
+        result = self.connection.send_setpoint(
+            theta5,
+            theta1,
+            z,
+            timeout=self.config.finished_timeout,
         )
+        self._require_ok(result, f"Failed to move to x={xy[0]:.4f}, y={xy[1]:.4f}, z={z:.4f}.")
         self._set_pose(RobotPose(x=xy[0], y=xy[1], z=z, theta1=theta1, theta5=theta5))
 
     def _compute_angles(self, xy: Point) -> tuple[float, float]:

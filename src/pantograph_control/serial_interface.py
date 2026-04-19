@@ -5,6 +5,11 @@ from dataclasses import dataclass
 import serial
 
 
+SUCCESS_RESPONSES = {"ACTIVE", "COMPLETE"}
+ERROR_RESPONSES = {"INVALID_TRANSITION", "INVALID_SETPOINT", "INVALID_SERIAL"}
+LEGACY_RESPONSES = {"OK", "FINISHED"}
+
+
 @dataclass(slots=True)
 class SerialReturn:
     status: bool
@@ -15,66 +20,102 @@ class SerialConnection:
     def __init__(self, port: str, baudrate: int, timeout: float = 5.0):
         self.connection = serial.Serial(port, baudrate, timeout=timeout)
 
-    def send_setpoint(self, q1: float, q2: float, z: float) -> SerialReturn:
-        command = f"SETPOINT {float(q1):.3f} {float(q2):.3f} {float(z):.3f}\n"
-        self.connection.write(command.encode())
-
-        try:
-            response = self._read_response_tokens()
-            if response == ["OK"]:
-                return SerialReturn(True, "OK")
-            if response == ["FINISHED"]:
-                return SerialReturn(
-                    False,
-                    "Protocol mismatch: received FINISHED before OK for SETPOINT.",
-                )
-            return SerialReturn(
-                False,
-                f"Unexpected SETPOINT acknowledgement: {' '.join(response)}",
-            )
-        except Exception as exc:
-            return SerialReturn(False, str(exc))
+    def send_setpoint(
+        self,
+        q1: float,
+        q2: float,
+        z: float,
+        timeout: float | None = None,
+    ) -> SerialReturn:
+        command = f"SETPOINT {float(q1):.4f} {float(q2):.4f} {float(z):.4f}\n"
+        return self._send_command(
+            command,
+            expected_status="COMPLETE",
+            timeout=timeout,
+            context="SETPOINT",
+        )
 
     def wait_for_finished(self, timeout: float | None = None) -> SerialReturn:
         try:
-            response = self._read_response_tokens(timeout=timeout)
-            if response == ["FINISHED"]:
-                return SerialReturn(True, "FINISHED")
-            if response == ["OK"]:
-                return SerialReturn(
-                    False,
-                    "Protocol mismatch: received OK while waiting for FINISHED.",
-                )
-            return SerialReturn(
-                False,
-                f"Unexpected completion response: {' '.join(response)}",
+            response = self._read_response_line(timeout=timeout)
+            return self._parse_response(
+                response,
+                expected_status="COMPLETE",
+                context="completion",
             )
         except Exception as exc:
             return SerialReturn(False, str(exc))
 
-    def send_activate(self) -> SerialReturn:
-        return self._send_simple_command("ACTIVATE\n")
+    def send_activate(self, timeout: float | None = None) -> SerialReturn:
+        return self._send_command(
+            "ACTIVATE\n",
+            expected_status="COMPLETE",
+            timeout=timeout,
+            context="ACTIVATE",
+        )
 
-    def send_deactivate(self) -> SerialReturn:
-        return self._send_simple_command("DEACTIVATE\n")
+    def send_deactivate(self, timeout: float | None = None) -> SerialReturn:
+        return self._send_command(
+            "DEACTIVATE\n",
+            expected_status="COMPLETE",
+            timeout=timeout,
+            context="DEACTIVATE",
+        )
 
-    def send_gripper(self, command: str) -> SerialReturn:
+    def send_gripper(
+        self,
+        command: str,
+        timeout: float | None = None,
+    ) -> SerialReturn:
         if command not in {"OPEN", "CLOSE"}:
             raise ValueError("Gripper command must be OPEN or CLOSE.")
-        return self._send_simple_command(f"GRIPPER {command}\n")
+        return self._send_command(
+            f"GRIPPER {command}\n",
+            expected_status="ACTIVE",
+            timeout=timeout,
+            context=f"GRIPPER {command}",
+        )
 
-    def _send_simple_command(self, command: str) -> SerialReturn:
+    def _send_command(
+        self,
+        command: str,
+        expected_status: str,
+        timeout: float | None,
+        context: str,
+    ) -> SerialReturn:
         self.connection.write(command.encode())
 
         try:
-            response = self._read_response_tokens()
-            if response and response[0] == "OK":
-                return SerialReturn(True, " ".join(response[1:]).strip())
-            return SerialReturn(False, " ".join(response))
+            response = self._read_response_line(timeout=timeout)
+            return self._parse_response(response, expected_status, context)
         except Exception as exc:
             return SerialReturn(False, str(exc))
 
-    def _read_response_tokens(self, timeout: float | None = None) -> list[str]:
+    def _parse_response(
+        self,
+        response: str,
+        expected_status: str,
+        context: str,
+    ) -> SerialReturn:
+        if response == expected_status:
+            return SerialReturn(True, response)
+        if response in ERROR_RESPONSES:
+            return SerialReturn(False, response)
+        if response in LEGACY_RESPONSES:
+            return SerialReturn(
+                False,
+                f"Protocol mismatch: received legacy response {response} for {context}; "
+                f"expected {expected_status}.",
+            )
+        if response in SUCCESS_RESPONSES:
+            return SerialReturn(
+                False,
+                f"Protocol mismatch: received {response} for {context}; "
+                f"expected {expected_status}.",
+            )
+        return SerialReturn(False, f"Unexpected {context} response: {response}")
+
+    def _read_response_line(self, timeout: float | None = None) -> str:
         previous_timeout = self.connection.timeout
         if timeout is not None:
             self.connection.timeout = timeout
@@ -92,4 +133,4 @@ class SerialConnection:
         if not decoded:
             raise TimeoutError("Received an empty response from the controller.")
 
-        return decoded.split()
+        return decoded
