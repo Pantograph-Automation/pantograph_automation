@@ -17,8 +17,57 @@ TESTS_DIR = TEST_FILE.parent
 TEST_FRAME = TESTS_DIR / "test_frame.png"
 
 @pytest.fixture(autouse=True)
-def write_debug_images_to_tests_dir(monkeypatch):
+def clean_camera_state(monkeypatch):
+    camera.close_camera()
     monkeypatch.chdir(TESTS_DIR)
+    yield
+    camera.close_camera()
+
+
+class FakePicamera2:
+    instances = []
+    frames = []
+
+    def __init__(self):
+        self.configurations = []
+        self.capture_streams = []
+        self.start_count = 0
+        self.stop_count = 0
+        self.close_count = 0
+        self._capture_index = 0
+        type(self).instances.append(self)
+
+    def create_still_configuration(self):
+        return {"configuration": "still"}
+
+    def configure(self, configuration):
+        self.configurations.append(configuration)
+
+    def start(self):
+        self.start_count += 1
+
+    def stop(self):
+        self.stop_count += 1
+
+    def close(self):
+        self.close_count += 1
+
+    def capture_array(self, stream):
+        self.capture_streams.append(stream)
+        frame = type(self).frames[self._capture_index]
+        self._capture_index += 1
+        return frame.copy()
+
+
+@pytest.fixture
+def fake_picamera(monkeypatch):
+    FakePicamera2.instances = []
+    FakePicamera2.frames = [
+        np.array([[[10, 20, 30], [40, 50, 60]]], dtype=np.uint8),
+        np.array([[[70, 80, 90], [100, 110, 120]]], dtype=np.uint8),
+    ]
+    monkeypatch.setattr(camera, "Picamera2", FakePicamera2)
+    return FakePicamera2
 
 
 def _load_test_frame():
@@ -154,6 +203,52 @@ def test_process_frame():
 
     _assert_centroids(centroids, frame.shape)
     _save_test_image("process_frame", _draw_centroids(frame, centroids))
+
+
+def test_capture_frame_reuses_single_started_camera(fake_picamera):
+    frame_1 = camera.capture_frame()
+    frame_2 = camera.capture_frame()
+
+    assert len(fake_picamera.instances) == 1
+    pc = fake_picamera.instances[0]
+    assert pc.configurations == [{"configuration": "still"}]
+    assert pc.start_count == 1
+    assert pc.stop_count == 0
+    assert pc.close_count == 0
+    assert pc.capture_streams == ["main", "main"]
+
+    np.testing.assert_array_equal(
+        frame_1,
+        np.array([[[30, 20, 10], [60, 50, 40]]], dtype=np.uint8),
+    )
+    np.testing.assert_array_equal(
+        frame_2,
+        np.array([[[90, 80, 70], [120, 110, 100]]], dtype=np.uint8),
+    )
+
+
+def test_close_camera_releases_singleton_and_allows_new_instance(fake_picamera):
+    camera.capture_frame()
+    first_pc = fake_picamera.instances[0]
+
+    camera.close_camera()
+
+    assert first_pc.stop_count == 1
+    assert first_pc.close_count == 1
+
+    camera.capture_frame()
+
+    assert len(fake_picamera.instances) == 2
+    second_pc = fake_picamera.instances[1]
+    assert second_pc.start_count == 1
+    assert second_pc.capture_streams == ["main"]
+
+
+def test_capture_frame_raises_when_picamera_is_unavailable(monkeypatch):
+    monkeypatch.setattr(camera, "Picamera2", None)
+
+    with pytest.raises(RuntimeError, match="Picamera2 is unavailable"):
+        camera.capture_frame()
 
 
 def test_capture_frame():

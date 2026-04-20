@@ -1,12 +1,18 @@
+import atexit
+import math
 import os
+import threading
+
 import cv2
 import numpy as np
-import math
 
 try:
     from picamera2 import Picamera2
 except ImportError:  # pragma: no cover - hardware dependency
     Picamera2 = None
+
+_camera_lock = threading.Lock()
+_camera = None
 
 # --- TUNABLE PARAMETERS ---
 MASK_RADIUS_RATIO = 0.47
@@ -97,17 +103,44 @@ def process_frame(frame, x_off=0, y_off=0, rad_ratio=0.45):
     clean_mask = _clean_noise_morphology(raw_mask)
     return _extract_centroids(frame, clean_mask)
 
-def capture_frame():
+def _get_camera():
     if Picamera2 is None:
         raise RuntimeError("Picamera2 is unavailable. Camera capture must run on the Raspberry Pi environment.")
 
-    pc = Picamera2()
-    pc.configure(pc.create_still_configuration())   # default processed RGB "main"
-    pc.start()
-    img = pc.capture_array("main")  # HxWx3 RGB uint8
-    pc.stop()
+    global _camera
+    if _camera is None:
+        pc = Picamera2()
+        pc.configure(pc.create_still_configuration())   # default processed RGB "main"
+        pc.start()
+        _camera = pc
+    return _camera
 
+def close_camera():
+    global _camera
+    with _camera_lock:
+        pc = _camera
+        _camera = None
+        if pc is None:
+            return
+
+        stop = getattr(pc, "stop", None)
+        if stop is not None:
+            stop()
+
+        close = getattr(pc, "close", None)
+        if close is not None:
+            close()
+
+
+def capture_frame():
+    with _camera_lock:
+        pc = _get_camera()
+        img = pc.capture_array("main")  # HxWx3 RGB uint8
     return cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
+
+
+atexit.register(close_camera)
+
 
 if __name__ == "__main__":
     # Ensure you use the correct path to your input image

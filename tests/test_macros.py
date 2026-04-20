@@ -4,6 +4,7 @@ import math
 import re
 import sys
 
+import numpy as np
 import pytest
 
 TEST_FILE = Path(__file__).resolve()
@@ -13,6 +14,7 @@ if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
 from pantograph_control import camera
+from pantograph_control import macros as macros_module
 from pantograph_control.macros import (
     Controller,
     DetectedCluster,
@@ -23,6 +25,13 @@ from pantograph_control.macros import (
 DEBUG_NOMINAL_CLUSTERS = 3
 DEBUG_OUTGOING_CLUSTERS = 3
 MANUAL_JOG_DX = 0.001
+
+
+@pytest.fixture(autouse=True)
+def clean_camera_state():
+    camera.close_camera()
+    yield
+    camera.close_camera()
 
 
 def _make_hardware_controller(
@@ -193,6 +202,39 @@ def test_missing_detected_source_slot_skips_matching_destination(monkeypatch):
     assert controller.status.destination_positions[missing_source_slot] not in placed
     assert controller._source_offset == 0
     assert controller._destination_offset == 0
+
+
+def test_capture_clusters_impl_uses_macro_capture_binding(monkeypatch):
+    frame = np.zeros((100, 120, 3), dtype=np.uint8)
+    config = TransferConfig(
+        nominal_clusters=3,
+        outgoing_clusters=3,
+        camera_mask_x_offset=0,
+        camera_mask_y_offset=0,
+        camera_mask_radius_ratio=0.5,
+    )
+    controller = Controller(config)
+    capture_calls = []
+
+    def capture_frame():
+        capture_calls.append(None)
+        return frame
+
+    def process_frame(actual_frame, x_off, y_off, rad_ratio):
+        assert actual_frame is frame
+        assert x_off == config.camera_mask_x_offset
+        assert y_off == config.camera_mask_y_offset
+        assert rad_ratio == config.camera_mask_radius_ratio
+        return [(60, 50), (70, 50)]
+
+    monkeypatch.setattr(macros_module, "capture_frame", capture_frame)
+    monkeypatch.setattr(macros_module, "process_frame", process_frame)
+
+    result = controller._capture_clusters_impl()
+
+    assert capture_calls == [None]
+    assert result == "Detected 2 candidate clusters in dish A."
+    _assert_clusters_match_frame(controller, controller.clusters, frame.shape)
 
 
 def test_calibrate_impl_hardware():
