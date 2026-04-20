@@ -13,10 +13,8 @@ if str(SRC_DIR) not in sys.path:
 
 from pantograph_control import camera
 
-
 TESTS_DIR = TEST_FILE.parent
 TEST_FRAME = TESTS_DIR / "test_frame.png"
-
 
 @pytest.fixture(autouse=True)
 def write_debug_images_to_tests_dir(monkeypatch):
@@ -77,7 +75,7 @@ def _mask_pipeline(frame):
         camera.MASK_Y_OFFSET,
         camera.MASK_RADIUS_RATIO,
     )
-    raw_mask = camera._isolate_pink_spots(masked)
+    raw_mask = camera._isolate_spots(masked)
     return camera._clean_noise_morphology(raw_mask)
 
 
@@ -103,7 +101,7 @@ def test_apply_circular_mask():
     _save_test_image("_apply_circular_mask", masked)
 
 
-def test_isolate_pink_spots():
+def test_isolate_spots():
     frame = _load_test_frame()
     masked = camera._apply_circular_mask(
         frame,
@@ -112,10 +110,10 @@ def test_isolate_pink_spots():
         camera.MASK_RADIUS_RATIO,
     )
 
-    color_mask = camera._isolate_pink_spots(masked)
+    color_mask = camera._isolate_spots(masked)
 
     _assert_mask_image(color_mask, frame.shape)
-    _save_test_image("_isolate_pink_spots", color_mask)
+    _save_test_image("_isolate_spots", color_mask)
 
 
 def test_clean_noise_morphology():
@@ -126,7 +124,7 @@ def test_clean_noise_morphology():
         camera.MASK_Y_OFFSET,
         camera.MASK_RADIUS_RATIO,
     )
-    color_mask = camera._isolate_pink_spots(masked)
+    color_mask = camera._isolate_spots(masked)
 
     cleaned_mask = camera._clean_noise_morphology(color_mask)
 
