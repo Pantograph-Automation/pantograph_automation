@@ -34,6 +34,14 @@ from .serial_interface import SerialConnection, SerialReturn
 
 Point = tuple[float, float, float]
 
+DISH_PATTERN_RING_SPECS = (
+    (0.18, 6),
+    (0.42, 10),
+    (0.66, 14),
+    (0.86, 15),
+)
+
+
 class TaskError(RuntimeError):
     """Raised when a prototype task cannot be completed."""
 
@@ -66,12 +74,19 @@ class TransferConfig:
     pick_height: float = 0.02
     place_height: float = 0.02
     lift_height: float = 0.02
-    pick_limit: int = 45
+    nominal_clusters: int = 45
+    outgoing_clusters: int = 30
     manual_step_min_m: float = 0.001
     manual_step_max_m: float = 0.020
     camera_mask_x_offset: int = MASK_X_OFFSET
     camera_mask_y_offset: int = MASK_Y_OFFSET
     camera_mask_radius_ratio: float = MASK_RADIUS_RATIO
+
+    def __post_init__(self) -> None:
+        if self.nominal_clusters <= 0:
+            raise ValueError("nominal_clusters must be greater than zero.")
+        if self.outgoing_clusters <= 0:
+            raise ValueError("outgoing_clusters must be greater than zero.")
 
 
 @dataclass(slots=True)
@@ -97,7 +112,7 @@ class Controller(QObject):
     def __init__(self, config: TransferConfig | None = None):
         super().__init__()
         self.config = config or TransferConfig()
-        self.connection: SerialConnection
+        self.connection: SerialConnection | None = None
         self.status = ControllerStatus(
             destination_positions=self._build_destination_pattern()
         )
@@ -108,6 +123,8 @@ class Controller(QObject):
             theta5=home_theta5,
         )
         self._clusters: list[DetectedCluster] = []
+        self._source_offset = 0
+        self._destination_offset = 0
         self._action_lock = threading.Lock()
 
     @property
@@ -254,32 +271,48 @@ class Controller(QObject):
             raise TaskError("Run blocked: calibrate before starting a transfer.")
 
         self._ensure_connection()
+        planned_count = self._planned_transfer_count()
+        source_start = self._source_offset
+        destination_start = self._destination_offset
+        source_stop = source_start + planned_count
+
         self._set_status(transferred_count=0)
         self._capture_clusters_impl()
 
-        if len(self._clusters) < self.config.pick_limit:
-            raise TaskError(
-                f"Detected only {len(self._clusters)} clusters in dish A; need {self.config.pick_limit} for the prototype run."
-            )
-
-        source_clusters = self._clusters[: self.config.pick_limit]
-        destinations = self.status.destination_positions[: self.config.pick_limit]
+        clusters_by_source_slot = self._match_clusters_to_source_slots(self._clusters)
+        destinations = self.status.destination_positions
 
         self._move_to(point=self.config.safe_home)
         self._send_command(lambda: self.connection.send_gripper("OPEN"), "Failed to open gripper before transfer run.")
 
-        for index, (cluster, destination) in enumerate(zip(source_clusters, destinations), start=1):
+        transferred_count = 0
+        for batch_index, source_slot_index in enumerate(range(source_start, source_stop), start=1):
+            destination_index = destination_start + batch_index - 1
+            destination = destinations[destination_index]
+            cluster = clusters_by_source_slot.get(source_slot_index)
+            if cluster is None:
+                self._set_status(
+                    detail=f"Skipping missing cluster {batch_index}/{planned_count}",
+                    transferred_count=transferred_count,
+                )
+                continue
+
             self._set_status(
-                detail=f"Transferring cluster {index}/{self.config.pick_limit}",
-                transferred_count=index - 1,
+                detail=f"Transferring cluster {batch_index}/{planned_count}",
+                transferred_count=transferred_count,
             )
             self._pick_cluster(cluster)
             self._place_cluster(destination)
-            self._set_status(transferred_count=index)
+            transferred_count += 1
+            self._set_status(transferred_count=transferred_count)
 
         self._move_to(self.config.safe_home)
         self._send_command(lambda: self.connection.send_gripper("OPEN"), "Failed to open gripper after transfer run.")
-        return f"Transferred {self.config.pick_limit} clusters from dish A to dish B."
+        next_step = self._advance_transfer_cycle(planned_count)
+        return (
+            f"Transferred {transferred_count} of {planned_count} planned clusters from Dish A to Dish B. "
+            f"{next_step}"
+        )
 
     def _manual_jog_impl(self, dx: float, dy: float, dz: float) -> str:
         if not self.status.calibrated:
@@ -360,27 +393,91 @@ class Controller(QObject):
         if not result.status:
             raise TaskError(f"{error_prefix} Serial response: {result.message}")
 
-    def _build_destination_pattern(self) -> list[Point]:
-        center_x, center_y, center_z = self.config.dish_b_center
-        pattern: list[Point] = []
-        ring_specs = (
-            (self.config.dish_radius_m * 0.18, 6),
-            (self.config.dish_radius_m * 0.42, 10),
-            (self.config.dish_radius_m * 0.66, 14),
+    def _planned_transfer_count(self) -> int:
+        source_remaining = self.config.nominal_clusters - self._source_offset
+        destination_remaining = self.config.outgoing_clusters - self._destination_offset
+        planned_count = min(source_remaining, destination_remaining)
+        if planned_count <= 0:
+            raise TaskError("Transfer cycle state is invalid; no source or destination slots are available.")
+        return planned_count
+
+    def _advance_transfer_cycle(self, planned_count: int) -> str:
+        self._source_offset += planned_count
+        self._destination_offset += planned_count
+
+        replace_source = self._source_offset >= self.config.nominal_clusters
+        replace_destination = self._destination_offset >= self.config.outgoing_clusters
+
+        if replace_source:
+            self._source_offset = 0
+        if replace_destination:
+            self._destination_offset = 0
+
+        if replace_source and replace_destination:
+            return "Replace the incoming and outgoing dishes before the next run."
+        if replace_source:
+            return "Replace the incoming dish before the next run."
+        if replace_destination:
+            return "Replace the outgoing dish before the next run."
+        return "Continue with the current dishes for the next run."
+
+    def _match_clusters_to_source_slots(
+        self,
+        clusters: list[DetectedCluster],
+    ) -> dict[int, DetectedCluster]:
+        source_positions = self._build_source_pattern()
+        distances: list[tuple[float, int, int]] = []
+        for cluster_index, cluster in enumerate(clusters):
+            for source_index, source_position in enumerate(source_positions):
+                distance = math.hypot(
+                    cluster.point[0] - source_position[0],
+                    cluster.point[1] - source_position[1],
+                )
+                distances.append((distance, source_index, cluster_index))
+
+        matched_clusters: set[int] = set()
+        matched_slots: dict[int, DetectedCluster] = {}
+        for _, source_index, cluster_index in sorted(distances):
+            if source_index in matched_slots or cluster_index in matched_clusters:
+                continue
+            matched_slots[source_index] = clusters[cluster_index]
+            matched_clusters.add(cluster_index)
+            if len(matched_clusters) == min(len(clusters), len(source_positions)):
+                break
+
+        return matched_slots
+
+    def _build_source_pattern(self) -> list[Point]:
+        center_x, center_y, _ = self.config.dish_a_center
+        center = (center_x, center_y, self.config.pick_height)
+        return self._build_dish_pattern(
+            center=center,
+            count=self.config.nominal_clusters,
+            label="source",
         )
 
-        for radius, count in ring_specs:
-            for index in range(count):
-                angle = (2 * math.pi * index) / count
+    def _build_destination_pattern(self) -> list[Point]:
+        return self._build_dish_pattern(
+            center=self.config.dish_b_center,
+            count=self.config.outgoing_clusters,
+            label="destination",
+        )
+
+    def _build_dish_pattern(self, center: Point, count: int, label: str) -> list[Point]:
+        center_x, center_y, center_z = center
+        pattern: list[Point] = []
+
+        for radius_ratio, ring_count in DISH_PATTERN_RING_SPECS:
+            radius = self.config.dish_radius_m * radius_ratio
+            for index in range(ring_count):
+                angle = (2 * math.pi * index) / ring_count
                 x = center_x + radius * math.cos(angle)
                 y = center_y + radius * math.sin(angle)
                 pattern.append((x, y, center_z))
-                if len(pattern) == self.config.pick_limit:
+                if len(pattern) == count:
                     return pattern
 
-        if len(pattern) < self.config.pick_limit:
-            raise TaskError(f"Unable to generate {self.config.pick_limit} destination positions inside dish B.")
-        return pattern
+        raise TaskError(f"Unable to generate {count} {label} positions inside the dish.")
 
     def _centroids_to_clusters(
         self,

@@ -135,8 +135,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.controller.emit_initial_state()
 
     def _configure_v1_inputs(self) -> None:
-        self.lineEditA.setText("45")
-        self.lineEditB.setText("30")
+        self.lineEditA.setText(str(self.controller.config.nominal_clusters))
+        self.lineEditB.setText(str(self.controller.config.outgoing_clusters))
         self.lineEditC.setText("0")
         self.lineEditD.setText("0")
 

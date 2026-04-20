@@ -1,3 +1,4 @@
+from dataclasses import fields
 from pathlib import Path
 import math
 import re
@@ -19,14 +20,56 @@ from pantograph_control.macros import (
     TransferConfig,
 )
 
-DEBUG_PICK_LIMIT = 3
+DEBUG_NOMINAL_CLUSTERS = 3
+DEBUG_OUTGOING_CLUSTERS = 3
 MANUAL_JOG_DX = 0.001
 
 
-def _make_hardware_controller(*, pick_limit=DEBUG_PICK_LIMIT):
-    controller = Controller(TransferConfig(pick_limit=pick_limit))
+def _make_hardware_controller(
+    *,
+    nominal_clusters=DEBUG_NOMINAL_CLUSTERS,
+    outgoing_clusters=DEBUG_OUTGOING_CLUSTERS,
+):
+    controller = Controller(
+        TransferConfig(
+            nominal_clusters=nominal_clusters,
+            outgoing_clusters=outgoing_clusters,
+        )
+    )
     controller.connection = None
     return controller
+
+
+def _make_detected_clusters(controller, *, missing_source_slots=()):
+    missing_source_slots = set(missing_source_slots)
+    return [
+        DetectedCluster(pixel_x=index, pixel_y=index, point=point)
+        for index, point in enumerate(controller._build_source_pattern())
+        if index not in missing_source_slots
+    ]
+
+
+def _make_unit_transfer_controller(monkeypatch, config, *, missing_source_slots=()):
+    controller = Controller(config)
+    controller.status.calibrated = True
+    controller.connection = object()
+    picked = []
+    placed = []
+
+    def capture_clusters():
+        clusters = _make_detected_clusters(
+            controller,
+            missing_source_slots=missing_source_slots,
+        )
+        controller._set_clusters(clusters)
+        return f"Detected {len(clusters)} candidate clusters in dish A."
+
+    monkeypatch.setattr(controller, "_capture_clusters_impl", capture_clusters)
+    monkeypatch.setattr(controller, "_move_to", lambda point: None)
+    monkeypatch.setattr(controller, "_send_command", lambda command, error_prefix: None)
+    monkeypatch.setattr(controller, "_pick_cluster", lambda cluster: picked.append(cluster))
+    monkeypatch.setattr(controller, "_place_cluster", lambda destination: placed.append(destination))
+    return controller, picked, placed
 
 
 def _close_controller_connection(controller):
@@ -83,6 +126,75 @@ def _assert_clusters_match_frame(controller, clusters, frame_shape):
         )
 
 
+def test_transfer_config_removes_pick_limit():
+    assert "pick_limit" not in {field.name for field in fields(TransferConfig)}
+    with pytest.raises(TypeError):
+        TransferConfig(pick_limit=1)
+
+
+def test_destination_pattern_length_follows_outgoing_clusters():
+    controller = Controller(TransferConfig(nominal_clusters=45, outgoing_clusters=15))
+
+    assert len(controller.status.destination_positions) == 15
+
+
+def test_stage_1_to_2_batch_sequence(monkeypatch):
+    controller, _, placed = _make_unit_transfer_controller(
+        monkeypatch,
+        TransferConfig(nominal_clusters=45, outgoing_clusters=30),
+    )
+
+    actual_counts = []
+    messages = []
+    for _ in range(4):
+        placed_before = len(placed)
+        messages.append(controller._run_transfer_impl())
+        actual_counts.append(len(placed) - placed_before)
+
+    assert actual_counts == [30, 15, 15, 30]
+    assert messages[0].endswith("Replace the outgoing dish before the next run.")
+    assert messages[1].endswith("Replace the incoming dish before the next run.")
+    assert messages[2].endswith("Replace the outgoing dish before the next run.")
+    assert messages[3].endswith("Replace the incoming and outgoing dishes before the next run.")
+    assert controller._source_offset == 0
+    assert controller._destination_offset == 0
+
+
+def test_stage_2_to_3_batch_sequence(monkeypatch):
+    controller, _, placed = _make_unit_transfer_controller(
+        monkeypatch,
+        TransferConfig(nominal_clusters=30, outgoing_clusters=15),
+    )
+
+    actual_counts = []
+    for _ in range(2):
+        placed_before = len(placed)
+        controller._run_transfer_impl()
+        actual_counts.append(len(placed) - placed_before)
+
+    assert actual_counts == [15, 15]
+    assert controller._source_offset == 0
+    assert controller._destination_offset == 0
+
+
+def test_missing_detected_source_slot_skips_matching_destination(monkeypatch):
+    missing_source_slot = 7
+    controller, _, placed = _make_unit_transfer_controller(
+        monkeypatch,
+        TransferConfig(nominal_clusters=15, outgoing_clusters=15),
+        missing_source_slots={missing_source_slot},
+    )
+
+    result = controller._run_transfer_impl()
+
+    assert result.startswith("Transferred 14 of 15 planned clusters")
+    assert controller.status.transferred_count == 14
+    assert len(placed) == 14
+    assert controller.status.destination_positions[missing_source_slot] not in placed
+    assert controller._source_offset == 0
+    assert controller._destination_offset == 0
+
+
 def test_calibrate_impl_hardware():
     controller = _make_hardware_controller()
 
@@ -135,17 +247,27 @@ def test_manual_jog_impl_hardware():
 
 def test_run_transfer_impl_hardware():
     frame_shape = _camera_frame_shape_or_skip()
-    controller = _make_hardware_controller(pick_limit=DEBUG_PICK_LIMIT)
+    controller = _make_hardware_controller(
+        nominal_clusters=DEBUG_NOMINAL_CLUSTERS,
+        outgoing_clusters=DEBUG_OUTGOING_CLUSTERS,
+    )
 
     try:
         _calibrate_or_skip_serial_unavailable(controller)
 
         result = controller._run_transfer_impl()
 
-        assert result == f"Transferred {DEBUG_PICK_LIMIT} clusters from dish A to dish B."
-        assert controller.status.transferred_count == DEBUG_PICK_LIMIT
+        assert re.fullmatch(
+            (
+                rf"Transferred \d+ of {DEBUG_NOMINAL_CLUSTERS} planned clusters "
+                r"from Dish A to Dish B\. "
+                r"Replace the incoming and outgoing dishes before the next run\."
+            ),
+            result,
+        )
+        assert 0 <= controller.status.transferred_count <= DEBUG_NOMINAL_CLUSTERS
         _assert_clusters_match_frame(controller, controller.clusters, frame_shape)
-        assert len(controller.clusters) >= DEBUG_PICK_LIMIT
+        assert len(controller.clusters) >= controller.status.transferred_count
     finally:
         _close_controller_connection(controller)
 
