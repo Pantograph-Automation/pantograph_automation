@@ -7,3 +7,6 @@ __pycache__
 
 .pio
 .vscode
+
+tests/*_img.png
+tests/[1-4]_*.png
