@@ -14,12 +14,12 @@ from .mechanics import (
     THETA5_MIN,
 )
 from .serial_interface import SerialConnection, SerialReturn
-from .tasks import (
+from .macros import (
     ControllerStatus,
     DetectedCluster,
-    PantographController,
-    PrototypeConfig,
-    RobotPose,
+    Controller,
+    TransferConfig,
+    Pose,
     TaskError,
 )
 
@@ -35,9 +35,9 @@ __all__ = [
     "DetectedCluster",
     "JOINT_LIMIT_TOL",
     "OutOfBoundsException",
-    "PantographController",
-    "PrototypeConfig",
-    "RobotPose",
+    "Controller",
+    "TransferConfig",
+    "Pose",
     "SerialConnection",
     "SerialReturn",
     "THETA1_MAX",

@@ -10,14 +10,14 @@ SRC_ROOT = Path(__file__).resolve().parents[1]
 if str(SRC_ROOT) not in sys.path:
     sys.path.insert(0, str(SRC_ROOT))
 
-from pantograph_control.tasks import ControllerStatus, PantographController, RobotPose
+from pantograph_control.macros import ControllerStatus, Controller, Pose
 from pantograph_ui.ui_calibrate_window import Ui_CalibrateWindow
 from pantograph_ui.ui_main_window import Ui_MainWindow
 from pantograph_ui.ui_manual_window import Ui_ManualWindow
 
 
 class ManualWindow(QWidget, Ui_ManualWindow):
-    def __init__(self, controller: PantographController):
+    def __init__(self, controller: Controller):
         super().__init__()
         self.controller = controller
         self.setupUi(self)
@@ -61,10 +61,10 @@ class ManualWindow(QWidget, Ui_ManualWindow):
     def _jog(self, dx: float = 0.0, dy: float = 0.0, dz: float = 0.0) -> None:
         self.controller.manual_jog_async(dx=dx, dy=dy, dz=dz)
 
-    def _update_pose(self, pose: RobotPose) -> None:
-        self.xLabel.setText(f"{pose.x:.3f} m")
-        self.yLabel.setText(f"{pose.y:.3f} m")
-        self.zLabel.setText(f"{pose.z:.3f} m")
+    def _update_pose(self, pose: Pose) -> None:
+        self.xLabel.setText(f"{pose.point[0]:.3f} m")
+        self.yLabel.setText(f"{pose.point[1]:.3f} m")
+        self.zLabel.setText(f"{pose.point[2]:.3f} m")
         self.j1Label.setText(f"{math.degrees(pose.theta1):.1f} deg")
         self.j2Label.setText(f"{math.degrees(pose.theta5):.1f} deg")
 
@@ -74,7 +74,7 @@ class ManualWindow(QWidget, Ui_ManualWindow):
 
 
 class CalibrateWindow(QWidget, Ui_CalibrateWindow):
-    def __init__(self, controller: PantographController):
+    def __init__(self, controller: Controller):
         super().__init__()
         self.controller = controller
         self.setupUi(self)
@@ -115,7 +115,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         "error": "#a02323",
     }
 
-    def __init__(self, controller: PantographController):
+    def __init__(self, controller: Controller):
         super().__init__()
         self.controller = controller
         self.setupUi(self)
@@ -174,9 +174,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def _start_run(self) -> None:
         self.controller.run_transfer_async()
 
-    def _update_pose(self, pose: RobotPose) -> None:
+    def _update_pose(self, pose: Pose) -> None:
         self.statusbar.showMessage(
-            f"Pose x={pose.x:.3f} m, y={pose.y:.3f} m, z={pose.z:.3f} m"
+            f"Pose x={pose.point[0]:.3f} m, y={pose.point[1]:.3f} m, z={pose.point[2]:.3f} m"
         )
 
     def _update_status(self, status: ControllerStatus) -> None:
@@ -223,7 +223,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
 def main() -> int:
     app = QApplication(sys.argv)
-    controller = PantographController()
+    controller = Controller()
     window = MainWindow(controller)
     window.show()
     return app.exec()
