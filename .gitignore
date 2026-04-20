@@ -9,4 +9,3 @@ __pycache__
 .vscode
 
 tests/*_img.png
-tests/[1-4]_*.png

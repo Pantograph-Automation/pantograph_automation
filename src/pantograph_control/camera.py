@@ -9,7 +9,7 @@ except ImportError:  # pragma: no cover - hardware dependency
     Picamera2 = None
 
 # --- TUNABLE PARAMETERS ---
-MASK_RADIUS_RATIO = 0.46
+MASK_RADIUS_RATIO = 0.47
 MASK_Y_OFFSET = -50
 MASK_X_OFFSET = -50
 
@@ -48,15 +48,12 @@ def _isolate_spots(masked_image):
 
     # Blur the reference background
     ref_gray = cv2.GaussianBlur(ref_gray, (127, 127), 0)
-    cv2.imwrite("ref_gray.png", ref_gray)
 
     # Dark spots in current image become bright in the residual
     spot_response = cv2.subtract(ref_gray, gray)
-    cv2.imwrite("spot_response.png", spot_response)
 
     # Threshold
-    _, color_mask = cv2.threshold(spot_response, 12, 255, cv2.THRESH_BINARY)
-    cv2.imwrite("threshold.png", color_mask)
+    _, color_mask = cv2.threshold(spot_response, 30, 255, cv2.THRESH_BINARY)
 
     # Cleanup
     kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
@@ -66,11 +63,11 @@ def _isolate_spots(masked_image):
 
 def _clean_noise_morphology(color_mask):
     # Use a slightly larger kernel to bridge gaps in foam texture
-    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (8, 8))
+    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (13, 13))
     
     # Remove noise, then close holes
     opened = cv2.morphologyEx(color_mask, cv2.MORPH_OPEN, kernel, iterations=1)
-    cleaned_mask = cv2.morphologyEx(opened, cv2.MORPH_CLOSE, kernel, iterations=2)
+    cleaned_mask = cv2.morphologyEx(opened, cv2.MORPH_CLOSE, kernel, iterations=3)
     return cleaned_mask
 
 def _extract_centroids(original_image, cleaned_mask, min_area=3000, max_area=1000000):
