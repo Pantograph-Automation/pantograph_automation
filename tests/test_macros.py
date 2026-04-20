@@ -122,7 +122,7 @@ def _assert_clusters_match_frame(controller, clusters, frame_shape):
     assert controller.status.detected_count == len(clusters)
     assert clusters == sorted(clusters, key=lambda cluster: (cluster.point[1], cluster.point[0]))
 
-    center_x, center_y, _ = controller.config.dish_a_center
+    center_x, center_y, _ = controller.config.input_center
     for cluster in clusters:
         assert isinstance(cluster, DetectedCluster)
         assert 0 <= cluster.pixel_x < width
@@ -135,10 +135,21 @@ def _assert_clusters_match_frame(controller, clusters, frame_shape):
         )
 
 
-def test_transfer_config_removes_pick_limit():
-    assert "pick_limit" not in {field.name for field in fields(TransferConfig)}
+def test_transfer_config_fields():
+    field_names = {field.name for field in fields(TransferConfig)}
+    config = TransferConfig()
+
+    assert "pick_limit" not in field_names
+    assert {"lid_center", "output_center", "input_center"} <= field_names
+    assert {"dish_a_center", "dish_b_center", "dish_c_center"}.isdisjoint(field_names)
+    _assert_point_close(config.lid_center, (0.0, 0.15, 0.05))
+    _assert_point_close(config.output_center, (-0.073, 0.20196, 0.05))
+    _assert_point_close(config.input_center, (-0.165, 0.15, 0.05))
+
     with pytest.raises(TypeError):
         TransferConfig(pick_limit=1)
+    with pytest.raises(TypeError):
+        TransferConfig(dish_a_center=(-0.15, 0.20, 0.02))
 
 
 def test_destination_pattern_length_follows_outgoing_clusters():

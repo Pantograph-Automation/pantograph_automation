@@ -67,9 +67,9 @@ class TransferConfig:
     baudrate: int = 115200
     finished_timeout: float = 15.0
     safe_home: Point = (-0.07, 0.25, 0.2)
-    dish_a_center: Point = (-0.15, 0.20, 0.02)
-    dish_b_center: Point = (0.00, 0.20, 0.02)
-    dish_c_center: Point = (0.00, 0.25, 0.02)
+    lid_center: Point = (0.0, 0.15, 0.05)
+    output_center: Point = (-0.073, 0.20196, 0.05)
+    input_center: Point = (-0.165, 0.15, 0.05)
     dish_radius_m: float = 0.035
     pick_height: float = 0.02
     place_height: float = 0.02
@@ -448,7 +448,7 @@ class Controller(QObject):
         return matched_slots
 
     def _build_source_pattern(self) -> list[Point]:
-        center_x, center_y, _ = self.config.dish_a_center
+        center_x, center_y, _ = self.config.input_center
         center = (center_x, center_y, self.config.pick_height)
         return self._build_dish_pattern(
             center=center,
@@ -458,7 +458,7 @@ class Controller(QObject):
 
     def _build_destination_pattern(self) -> list[Point]:
         return self._build_dish_pattern(
-            center=self.config.dish_b_center,
+            center=self.config.output_center,
             count=self.config.outgoing_clusters,
             label="destination",
         )
@@ -489,7 +489,7 @@ class Controller(QObject):
         mask_center_y = height / 2 + self.config.camera_mask_y_offset
         radius_px = min(height, width) * self.config.camera_mask_radius_ratio
         radius_m = self.config.dish_radius_m
-        center_x_m, center_y_m, _ = self.config.dish_a_center
+        center_x_m, center_y_m, _ = self.config.input_center
         clusters: list[DetectedCluster] = []
 
         for px, py in centroids:
@@ -497,7 +497,7 @@ class Controller(QObject):
             offset_y = (py - mask_center_y) / radius_px
             x_m = center_x_m + offset_x * radius_m
             y_m = center_y_m + offset_y * radius_m
-            if self._point_inside_dish(x_m, y_m, self.config.dish_a_center, radius_m):
+            if self._point_inside_dish(x_m, y_m, self.config.input_center, radius_m):
                 clusters.append(DetectedCluster(pixel_x=px, pixel_y=py, point=Point([x_m, y_m, self.config.pick_height])))
 
         clusters.sort(key=lambda cluster: (cluster.point[1], cluster.point[0]))
