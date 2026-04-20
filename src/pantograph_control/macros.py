@@ -66,7 +66,7 @@ class TransferConfig:
     serial_ports: tuple[str, ...] = ("/dev/ttyACM0", "/dev/ttyACM1", "COM3", "COM4", "COM6")
     baudrate: int = 115200
     finished_timeout: float = 15.0
-    safe_home: Point = (-0.07, 0.25, 0.25)
+    safe_home: Point = (-0.07, 0.25, 0.2)
     dish_a_center: Point = (-0.15, 0.20, 0.02)
     dish_b_center: Point = (0.00, 0.20, 0.02)
     dish_c_center: Point = (0.00, 0.25, 0.02)
@@ -343,8 +343,8 @@ class Controller(QObject):
         theta1, theta5 = self._compute_angles(point=point)
         self._validate_joint_limits(point, theta1, theta5)
         result = self.connection.send_setpoint(
-            theta5,
             theta1,
+            theta5,
             point[2],
             timeout=self.config.finished_timeout,
         )

@@ -71,7 +71,7 @@ class SerialConnection:
             raise ValueError("Gripper command must be OPEN or CLOSE.")
         return self._send_command(
             f"GRIPPER {command}\n",
-            expected_status="ACTIVE",
+            expected_status="COMPLETE",
             timeout=timeout,
             context=f"GRIPPER {command}",
         )
