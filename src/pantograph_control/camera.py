@@ -91,10 +91,6 @@ def _extract_centroids(original_image, cleaned_mask, min_area=3000, max_area=100
                 cy = int(M["m01"] / M["m00"])
                 centroids.append((cx, cy))
                 
-                # Visual debug
-                r = int(math.sqrt(area / math.pi))
-                cv2.circle(visual_output, (cx, cy), r, (0, 255, 0), 2)
-                cv2.circle(visual_output, (cx, cy), 2, (0, 0, 255), -1)
     return centroids
 
 def process_frame(frame, x_off=0, y_off=0, rad_ratio=0.45):

@@ -131,8 +131,7 @@ def _mask_pipeline(frame):
 def _draw_centroids(frame, centroids):
     visual = frame.copy()
     for x, y in centroids:
-        cv2.circle(visual, (x, y), 10, (0, 255, 0), 2)
-        cv2.circle(visual, (x, y), 2, (0, 0, 255), -1)
+        cv2.circle(visual, (x, y), 50, (0, 255, 0), 2)
     return visual
 
 
