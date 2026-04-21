@@ -70,10 +70,10 @@ class TransferConfig:
     lid_center: Point = (0.0, 0.15, 0.05)
     output_center: Point = (-0.073, 0.20196, 0.05)
     input_center: Point = (-0.165, 0.15, 0.05)
-    dish_radius_m: float = 0.035
-    pick_height: float = 0.02
-    place_height: float = 0.02
-    lift_height: float = 0.02
+    dish_radius_m: float = 0.085
+    pick_height: float = 0.025
+    place_height: float = 0.025
+    lift_height: float = 0.05
     nominal_clusters: int = 45
     outgoing_clusters: int = 30
     manual_step_min_m: float = 0.001

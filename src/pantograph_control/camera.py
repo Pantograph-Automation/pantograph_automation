@@ -18,6 +18,7 @@ _camera = None
 MASK_RADIUS_RATIO = 0.47
 MASK_Y_OFFSET = -50
 MASK_X_OFFSET = -50
+MIN_CONTOUR_CIRCULARITY = 0.70
 
 def _apply_circular_mask(image, x_offset=0, y_offset=0, radius_ratio=0.45):
     h, w = image.shape[:2]
@@ -76,20 +77,31 @@ def _clean_noise_morphology(color_mask):
     cleaned_mask = cv2.morphologyEx(opened, cv2.MORPH_CLOSE, kernel, iterations=3)
     return cleaned_mask
 
+def _contour_circularity(contour):
+    area = cv2.contourArea(contour)
+    perimeter = cv2.arcLength(contour, True)
+    if perimeter == 0:
+        return 0.0
+    return 4 * math.pi * area / (perimeter * perimeter)
+
 def _extract_centroids(original_image, cleaned_mask, min_area=3000, max_area=1000000):
     contours, _ = cv2.findContours(cleaned_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     
     centroids = []
-    visual_output = original_image.copy()
     
     for cnt in contours:
         area = cv2.contourArea(cnt)
-        if min_area < area < max_area:
-            M = cv2.moments(cnt)
-            if M["m00"] != 0:
-                cx = int(M["m10"] / M["m00"])
-                cy = int(M["m01"] / M["m00"])
-                centroids.append((cx, cy))
+        if not (min_area < area < max_area):
+            continue
+
+        if _contour_circularity(cnt) < MIN_CONTOUR_CIRCULARITY:
+            continue
+
+        M = cv2.moments(cnt)
+        if M["m00"] != 0:
+            cx = int(M["m10"] / M["m00"])
+            cy = int(M["m01"] / M["m00"])
+            centroids.append((cx, cy))
                 
     return centroids
 

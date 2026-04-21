@@ -24,7 +24,7 @@ from pantograph_control.macros import (
 
 DEBUG_NOMINAL_CLUSTERS = 3
 DEBUG_OUTGOING_CLUSTERS = 3
-MANUAL_JOG_DX = 0.001
+MANUAL_JOG_DX = 0.01
 
 
 @pytest.fixture(autouse=True)
@@ -163,6 +163,11 @@ def test_stage_1_to_2_batch_sequence(monkeypatch):
         monkeypatch,
         TransferConfig(nominal_clusters=45, outgoing_clusters=30),
     )
+
+    result = _calibrate_or_skip_serial_unavailable(controller)
+
+    assert result == "Calibration complete. Pantograph is at the safe home pose."
+    assert controller.status.calibrated is True
 
     actual_counts = []
     messages = []

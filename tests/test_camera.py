@@ -187,11 +187,26 @@ def test_extract_centroids():
     centroids = camera._extract_centroids(frame, cleaned_mask)
 
     _assert_centroids(centroids, frame.shape)
+    assert len(centroids) == 39
     _save_test_image("_extract_centroids", _draw_centroids(frame, centroids))
 
 
 def test_process_frame():
     frame = _load_test_frame()
+
+    centroids = camera.process_frame(
+        frame,
+        camera.MASK_X_OFFSET,
+        camera.MASK_Y_OFFSET,
+        camera.MASK_RADIUS_RATIO,
+    )
+
+    _assert_centroids(centroids, frame.shape)
+    assert len(centroids) == 39
+    _save_test_image("process_frame", _draw_centroids(frame, centroids))
+
+def test_process_real_frame():
+    frame = camera.capture_frame()
 
     centroids = camera.process_frame(
         frame,
