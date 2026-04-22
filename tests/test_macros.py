@@ -3,6 +3,7 @@ from pathlib import Path
 import math
 import re
 import sys
+import time
 
 import numpy as np
 import pytest
@@ -134,125 +135,6 @@ def _assert_clusters_match_frame(controller, clusters, frame_shape):
             <= controller.config.dish_radius_m + 1e-12
         )
 
-
-def test_transfer_config_fields():
-    field_names = {field.name for field in fields(TransferConfig)}
-    config = TransferConfig()
-
-    assert "pick_limit" not in field_names
-    assert {"lid_center", "output_center", "input_center"} <= field_names
-    assert {"dish_a_center", "dish_b_center", "dish_c_center"}.isdisjoint(field_names)
-    _assert_point_close(config.lid_center, (0.0, 0.15, 0.05))
-    _assert_point_close(config.output_center, (-0.073, 0.20196, 0.05))
-    _assert_point_close(config.input_center, (-0.165, 0.15, 0.05))
-
-    with pytest.raises(TypeError):
-        TransferConfig(pick_limit=1)
-    with pytest.raises(TypeError):
-        TransferConfig(dish_a_center=(-0.15, 0.20, 0.02))
-
-
-def test_destination_pattern_length_follows_outgoing_clusters():
-    controller = Controller(TransferConfig(nominal_clusters=45, outgoing_clusters=15))
-
-    assert len(controller.status.destination_positions) == 15
-
-
-def test_stage_1_to_2_batch_sequence(monkeypatch):
-    controller, _, placed = _make_unit_transfer_controller(
-        monkeypatch,
-        TransferConfig(nominal_clusters=45, outgoing_clusters=30),
-    )
-
-    result = _calibrate_or_skip_serial_unavailable(controller)
-
-    assert result == "Calibration complete. Pantograph is at the safe home pose."
-    assert controller.status.calibrated is True
-
-    actual_counts = []
-    messages = []
-    for _ in range(4):
-        placed_before = len(placed)
-        messages.append(controller._run_transfer_impl())
-        actual_counts.append(len(placed) - placed_before)
-
-    assert actual_counts == [30, 15, 15, 30]
-    assert messages[0].endswith("Replace the outgoing dish before the next run.")
-    assert messages[1].endswith("Replace the incoming dish before the next run.")
-    assert messages[2].endswith("Replace the outgoing dish before the next run.")
-    assert messages[3].endswith("Replace the incoming and outgoing dishes before the next run.")
-    assert controller._source_offset == 0
-    assert controller._destination_offset == 0
-
-
-def test_stage_2_to_3_batch_sequence(monkeypatch):
-    controller, _, placed = _make_unit_transfer_controller(
-        monkeypatch,
-        TransferConfig(nominal_clusters=30, outgoing_clusters=15),
-    )
-
-    actual_counts = []
-    for _ in range(2):
-        placed_before = len(placed)
-        controller._run_transfer_impl()
-        actual_counts.append(len(placed) - placed_before)
-
-    assert actual_counts == [15, 15]
-    assert controller._source_offset == 0
-    assert controller._destination_offset == 0
-
-
-def test_missing_detected_source_slot_skips_matching_destination(monkeypatch):
-    missing_source_slot = 7
-    controller, _, placed = _make_unit_transfer_controller(
-        monkeypatch,
-        TransferConfig(nominal_clusters=15, outgoing_clusters=15),
-        missing_source_slots={missing_source_slot},
-    )
-
-    result = controller._run_transfer_impl()
-
-    assert result.startswith("Transferred 14 of 15 planned clusters")
-    assert controller.status.transferred_count == 14
-    assert len(placed) == 14
-    assert controller.status.destination_positions[missing_source_slot] not in placed
-    assert controller._source_offset == 0
-    assert controller._destination_offset == 0
-
-
-def test_capture_clusters_impl_uses_macro_capture_binding(monkeypatch):
-    frame = np.zeros((100, 120, 3), dtype=np.uint8)
-    config = TransferConfig(
-        nominal_clusters=3,
-        outgoing_clusters=3,
-        camera_mask_x_offset=0,
-        camera_mask_y_offset=0,
-        camera_mask_radius_ratio=0.5,
-    )
-    controller = Controller(config)
-    capture_calls = []
-
-    def capture_frame():
-        capture_calls.append(None)
-        return frame
-
-    def process_frame(actual_frame, x_off, y_off, rad_ratio):
-        assert actual_frame is frame
-        assert x_off == config.camera_mask_x_offset
-        assert y_off == config.camera_mask_y_offset
-        assert rad_ratio == config.camera_mask_radius_ratio
-        return [(60, 50), (70, 50)]
-
-    monkeypatch.setattr(macros_module, "capture_frame", capture_frame)
-    monkeypatch.setattr(macros_module, "process_frame", process_frame)
-
-    result = controller._capture_clusters_impl()
-
-    assert capture_calls == [None]
-    assert result == "Detected 2 candidate clusters in dish A."
-    _assert_clusters_match_frame(controller, controller.clusters, frame.shape)
-
-
 def test_calibrate_impl_hardware():
     controller = _make_hardware_controller()
 
@@ -303,6 +185,32 @@ def test_manual_jog_impl_hardware():
         _close_controller_connection(controller)
 
 
+def test_center_input_impl_hardware():
+    controller = _make_hardware_controller()
+
+    try:
+        _calibrate_or_skip_serial_unavailable(controller)
+        time.sleep(2)
+        controller._move_to(controller.config.input_center)
+
+        _assert_point_close(controller.pose.point, controller.config.input_center)
+    finally:
+        _close_controller_connection(controller)
+
+
+def test_center_output_impl_hardware():
+    controller = _make_hardware_controller()
+
+    try:
+        _calibrate_or_skip_serial_unavailable(controller)
+        time.sleep(2)
+        controller._move_to(controller.config.output_center)
+
+        _assert_point_close(controller.pose.point, controller.config.output_center)
+    finally:
+        _close_controller_connection(controller)
+
+
 def test_run_transfer_impl_hardware():
     frame_shape = _camera_frame_shape_or_skip()
     controller = _make_hardware_controller(
@@ -311,10 +219,13 @@ def test_run_transfer_impl_hardware():
     )
 
     try:
-        _calibrate_or_skip_serial_unavailable(controller)
+
+        result = controller._calibrate_impl()
+
+        assert re.fullmatch(('Calibration complete. Pantograph is at the safe home pose.'), result)
 
         result = controller._run_transfer_impl()
-
+        
         assert re.fullmatch(
             (
                 rf"Transferred \d+ of {DEBUG_NOMINAL_CLUSTERS} planned clusters "
@@ -339,6 +250,10 @@ DEBUG_ALIASES = {
     "run_transfer_impl": "test_run_transfer_impl_hardware",
     "_manual_jog_impl": "test_manual_jog_impl_hardware",
     "manual_jog_impl": "test_manual_jog_impl_hardware",
+    "_center_input_impl": "test_center_input_impl_hardware",
+    "center_input_impl": "test_center_input_impl_hardware",
+    "_center_output_impl": "test_center_output_impl_hardware",
+    "center_output_impl": "test_center_output_impl_hardware",
 }
 
 

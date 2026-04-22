@@ -66,6 +66,7 @@ class TransferConfig:
     serial_ports: tuple[str, ...] = ("/dev/ttyACM0", "/dev/ttyACM1", "COM3", "COM4", "COM6")
     baudrate: int = 115200
     finished_timeout: float = 15.0
+    calibrate_timeout: float = 30.0
     safe_home: Point = (-0.07, 0.25, 0.2)
     lid_center: Point = (0.0, 0.15, 0.05)
     output_center: Point = (-0.073, 0.20196, 0.05)
@@ -246,10 +247,9 @@ class Controller(QObject):
     def _calibrate_impl(self) -> str:
         self._ensure_connection()
         self._send_command(
-            lambda: self.connection.send_activate(timeout=self.config.finished_timeout),
+            lambda: self.connection.send_activate(timeout=self.config.calibrate_timeout),
             "Failed to activate pantograph.",
         )
-        self._send_command(lambda: self.connection.send_gripper("OPEN"), "Failed to open gripper during calibration.")
         self._move_to(self.config.safe_home)
         self._set_status(calibrated=True)
         return "Calibration complete. Pantograph is at the safe home pose."
