@@ -15,10 +15,10 @@ _camera_lock = threading.Lock()
 _camera = None
 
 # --- TUNABLE PARAMETERS ---
-MASK_RADIUS_RATIO = 0.47
-MASK_Y_OFFSET = -50
-MASK_X_OFFSET = -50
-MIN_CONTOUR_CIRCULARITY = 0.70
+MASK_RADIUS_RATIO = 0.474
+MASK_Y_OFFSET = -72
+MASK_X_OFFSET = -65
+MIN_CONTOUR_CIRCULARITY = 0.75
 
 def _apply_circular_mask(image, x_offset=0, y_offset=0, radius_ratio=0.45):
     h, w = image.shape[:2]
@@ -32,49 +32,46 @@ def _apply_circular_mask(image, x_offset=0, y_offset=0, radius_ratio=0.45):
 
 def _isolate_spots(masked_image):
     """
-    Isolate dark circular spots using a precomputed background reference image
-    stored as 'subtraction.png' in the same folder.
-
-    Returns a binary mask where spots are white.
+    Isolate dark circular spots.
+    Only the region inside the circular mask is inverted.
+    Returns white spots on black background.
     """
 
+    h, w = masked_image.shape[:2]
+
+    # Grayscale + contrast
     gray = cv2.cvtColor(masked_image, cv2.COLOR_BGR2GRAY)
+
+    clahe = cv2.createCLAHE(clipLimit=3.0, tileGridSize=(8, 8))
+    gray = clahe.apply(gray)
+
     gray = cv2.GaussianBlur(gray, (5, 5), 0)
 
-    # Load reference background image from same folder as this script
-    ref_path = os.path.join(os.path.dirname(__file__), "subtraction.png")
-    ref_img = cv2.imread(ref_path, cv2.IMREAD_COLOR)
-    if ref_img is None:
-        raise FileNotFoundError(f"Could not load reference image: {ref_path}")
+    # Threshold dark spots normally: dark -> white
+    _, spot_mask = cv2.threshold(gray, 60, 255, cv2.THRESH_BINARY_INV)
 
-    ref_gray = cv2.cvtColor(ref_img, cv2.COLOR_BGR2GRAY)
+    # Create circular ROI mask
+    circle_mask = np.zeros((h, w), dtype=np.uint8)
 
-    # Match size in case the reference was saved with slightly different dimensions
-    if ref_gray.shape != gray.shape:
-        ref_gray = cv2.resize(ref_gray, (gray.shape[1], gray.shape[0]))
+    cx = w // 2 + MASK_X_OFFSET
+    cy = h // 2 + MASK_Y_OFFSET
+    radius = int(0.99 * MASK_RADIUS_RATIO * min(h, w))
 
-    # Blur the reference background
-    ref_gray = cv2.GaussianBlur(ref_gray, (127, 127), 0)
+    cv2.circle(circle_mask, (cx, cy), radius, 255, -1)
 
-    # Dark spots in current image become bright in the residual
-    spot_response = cv2.subtract(ref_gray, gray)
+    # Keep only inverted/white spots inside the circle
+    result = cv2.bitwise_and(spot_mask, circle_mask)
 
-    # Threshold
-    _, color_mask = cv2.threshold(spot_response, 30, 255, cv2.THRESH_BINARY)
-
-    # Cleanup
-    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
-    color_mask = cv2.morphologyEx(color_mask, cv2.MORPH_OPEN, kernel)
-    color_mask = cv2.morphologyEx(color_mask, cv2.MORPH_CLOSE, kernel)
-    return color_mask
+    return result
 
 def _clean_noise_morphology(color_mask):
     # Use a slightly larger kernel to bridge gaps in foam texture
     kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (13, 13))
     
     # Remove noise, then close holes
-    opened = cv2.morphologyEx(color_mask, cv2.MORPH_OPEN, kernel, iterations=1)
-    cleaned_mask = cv2.morphologyEx(opened, cv2.MORPH_CLOSE, kernel, iterations=3)
+    opened = cv2.morphologyEx(color_mask, cv2.MORPH_OPEN, kernel, iterations=2)
+    cleaned_mask = cv2.morphologyEx(opened, cv2.MORPH_CLOSE, kernel, iterations=4)
+    
     return cleaned_mask
 
 def _contour_circularity(contour):

@@ -69,9 +69,9 @@ class TransferConfig:
     calibrate_timeout: float = 30.0
     safe_home: Point = (-0.07, 0.25, 0.2)
     lid_center: Point = (0.0, 0.15, 0.05)
-    output_center: Point = (-0.073, 0.20196, 0.020)
-    input_center: Point = (-0.157, 0.155, 0.020)
-    dish_radius_m: float = 0.085
+    output_center: Point = (-0.073, 0.20196, 0.05)
+    input_center: Point = (-0.165, 0.15, 0.05)
+    dish_radius_m: float = 0.038
     pick_height: float = 0.025
     place_height: float = 0.025
     lift_height: float = 0.05
