@@ -69,8 +69,8 @@ class TransferConfig:
     calibrate_timeout: float = 30.0
     safe_home: Point = (-0.07, 0.25, 0.2)
     lid_center: Point = (0.0, 0.15, 0.05)
-    output_center: Point = (-0.073, 0.20196, 0.05)
-    input_center: Point = (-0.165, 0.15, 0.05)
+    output_center: Point = (-0.073, 0.20196, 0.020)
+    input_center: Point = (-0.157, 0.155, 0.020)
     dish_radius_m: float = 0.085
     pick_height: float = 0.025
     place_height: float = 0.025
@@ -313,6 +313,15 @@ class Controller(QObject):
             f"Transferred {transferred_count} of {planned_count} planned clusters from Dish A to Dish B. "
             f"{next_step}"
         )
+    
+    def _close_gripper(self) -> str:
+        self._send_command(lambda: self.connection.send_gripper("CLOSE"), "Failed to open gripper after transfer run.")
+        return "Closed gripper."
+    
+    def _open_gripper(self) -> str:
+        self._send_command(lambda: self.connection.send_gripper("OPEN"), "Failed to open gripper after transfer run.")
+        return "Opened gripper."
+    
 
     def _manual_jog_impl(self, dx: float, dy: float, dz: float) -> str:
         if not self.status.calibrated:

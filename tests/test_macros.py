@@ -49,39 +49,6 @@ def _make_hardware_controller(
     controller.connection = None
     return controller
 
-
-def _make_detected_clusters(controller, *, missing_source_slots=()):
-    missing_source_slots = set(missing_source_slots)
-    return [
-        DetectedCluster(pixel_x=index, pixel_y=index, point=point)
-        for index, point in enumerate(controller._build_source_pattern())
-        if index not in missing_source_slots
-    ]
-
-
-def _make_unit_transfer_controller(monkeypatch, config, *, missing_source_slots=()):
-    controller = Controller(config)
-    controller.status.calibrated = True
-    controller.connection = object()
-    picked = []
-    placed = []
-
-    def capture_clusters():
-        clusters = _make_detected_clusters(
-            controller,
-            missing_source_slots=missing_source_slots,
-        )
-        controller._set_clusters(clusters)
-        return f"Detected {len(clusters)} candidate clusters in dish A."
-
-    monkeypatch.setattr(controller, "_capture_clusters_impl", capture_clusters)
-    monkeypatch.setattr(controller, "_move_to", lambda point: None)
-    monkeypatch.setattr(controller, "_send_command", lambda command, error_prefix: None)
-    monkeypatch.setattr(controller, "_pick_cluster", lambda cluster: picked.append(cluster))
-    monkeypatch.setattr(controller, "_place_cluster", lambda destination: placed.append(destination))
-    return controller, picked, placed
-
-
 def _close_controller_connection(controller):
     connection = getattr(controller, "connection", None)
     serial_connection = getattr(connection, "connection", None)
@@ -190,9 +157,9 @@ def test_center_input_impl_hardware():
 
     try:
         _calibrate_or_skip_serial_unavailable(controller)
-        time.sleep(2)
+        controller._close_gripper()
         controller._move_to(controller.config.input_center)
-
+        
         _assert_point_close(controller.pose.point, controller.config.input_center)
     finally:
         _close_controller_connection(controller)
