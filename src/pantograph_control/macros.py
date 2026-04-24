@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import math
+import math, time
 import threading
 from dataclasses import dataclass, field
 from typing import Callable
@@ -35,10 +35,10 @@ from .serial_interface import SerialConnection, SerialReturn
 Point = tuple[float, float, float]
 
 DISH_PATTERN_RING_SPECS = (
-    (0.18, 6),
-    (0.42, 10),
-    (0.66, 14),
-    (0.86, 15),
+    (0.18, 3),
+    (0.45, 10),
+    (0.70, 15),
+    (0.88, 17),
 )
 
 
@@ -59,7 +59,7 @@ class DetectedCluster:
     pixel_y: int
     point: Point
 
-
+FISHEYE_SCALE = 0.85
 
 @dataclass(slots=True)
 class TransferConfig:
@@ -67,14 +67,14 @@ class TransferConfig:
     baudrate: int = 115200
     finished_timeout: float = 15.0
     calibrate_timeout: float = 30.0
-    safe_home: Point = (-0.07, 0.25, 0.2)
+    safe_home: Point = (-0.07, 0.20, 0.22)
     lid_center: Point = (0.0, 0.15, 0.05)
-    output_center: Point = (-0.073, 0.20196, 0.05)
-    input_center: Point = (-0.165, 0.15, 0.05)
+    output_center: Point = (-0.068, 0.2115, 0.023)
+    input_center: Point = (-0.158, 0.157, 0.023)
     dish_radius_m: float = 0.038
-    pick_height: float = 0.025
-    place_height: float = 0.025
-    lift_height: float = 0.05
+    pick_height: float = 0.0225
+    place_height: float = 0.023
+    lift_height: float = 0.035
     nominal_clusters: int = 45
     outgoing_clusters: int = 30
     manual_step_min_m: float = 0.001
@@ -283,7 +283,7 @@ class Controller(QObject):
         destinations = self.status.destination_positions
 
         self._move_to(point=self.config.safe_home)
-        self._send_command(lambda: self.connection.send_gripper("OPEN"), "Failed to open gripper before transfer run.")
+        self._open_gripper()
 
         transferred_count = 0
         for batch_index, source_slot_index in enumerate(range(source_start, source_stop), start=1):
@@ -334,17 +334,20 @@ class Controller(QObject):
         return f"Moved to x={target_x:.4f} m, y={target_y:.4f} m, z={target_z:.4f} m."
 
     def _pick_cluster(self, cluster: DetectedCluster) -> None:
+        lift_point = Point([cluster.point[0], cluster.point[1], self.config.lift_height])
+        self._move_to(lift_point)
+        self._open_gripper()
         self._move_to(cluster.point)
-        self._send_command(lambda: self.connection.send_gripper("OPEN"), "Failed to open gripper before pick.")
-        self._move_to(cluster.point)
-        self._send_command(lambda: self.connection.send_gripper("CLOSE"), "Failed to close gripper on source cluster.")
-        self._move_to(cluster.point)
+        self._close_gripper()
+        time.sleep(0.2)
+        self._move_to(lift_point)
 
     def _place_cluster(self, place_destination: Point) -> None:
         lift_point = Point([place_destination[0], place_destination[1], self.config.lift_height])
         self._move_to(lift_point)
         self._move_to(place_destination)
-        self._send_command(lambda: self.connection.send_gripper("OPEN"), "Failed to open gripper at destination.")
+        self._open_gripper()
+        time.sleep(0.2)
         self._move_to(lift_point)
 
     def _move_to(self, point: Point) -> None:
@@ -480,8 +483,8 @@ class Controller(QObject):
             radius = self.config.dish_radius_m * radius_ratio
             for index in range(ring_count):
                 angle = (2 * math.pi * index) / ring_count
-                x = center_x + radius * math.cos(angle)
-                y = center_y + radius * math.sin(angle)
+                x = center_x + (radius * math.cos(angle))*FISHEYE_SCALE
+                y = center_y + (radius * math.sin(angle))*FISHEYE_SCALE
                 pattern.append((x, y, center_z))
                 if len(pattern) == count:
                     return pattern

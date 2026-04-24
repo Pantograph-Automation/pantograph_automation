@@ -21,6 +21,7 @@ from pantograph_control.macros import (
     DetectedCluster,
     TaskError,
     TransferConfig,
+    Point
 )
 
 DEBUG_NOMINAL_CLUSTERS = 3
@@ -156,11 +157,20 @@ def test_center_input_impl_hardware():
     controller = _make_hardware_controller()
 
     try:
+
         _calibrate_or_skip_serial_unavailable(controller)
         controller._close_gripper()
         controller._move_to(controller.config.input_center)
         
+        next_point = Point([
+            controller.config.input_center[0],
+            controller.config.input_center[1],
+            controller.config.input_center[2] + 0.02])
+        
         _assert_point_close(controller.pose.point, controller.config.input_center)
+
+        controller._move_to(next_point)
+        controller._move_to(controller.config.safe_home)
     finally:
         _close_controller_connection(controller)
 
@@ -170,19 +180,32 @@ def test_center_output_impl_hardware():
 
     try:
         _calibrate_or_skip_serial_unavailable(controller)
-        time.sleep(2)
+        controller._close_gripper()
         controller._move_to(controller.config.output_center)
-
         _assert_point_close(controller.pose.point, controller.config.output_center)
+
+        next_point = Point([
+            controller.config.output_center[0],
+            controller.config.output_center[1],
+            controller.config.output_center[2] + 0.02])
+        
+        _assert_point_close(controller.pose.point, controller.config.output_center)
+
+        controller._move_to(next_point)
+        controller._move_to(controller.config.safe_home)
     finally:
         _close_controller_connection(controller)
 
 
 def test_run_transfer_impl_hardware():
     frame_shape = _camera_frame_shape_or_skip()
+    # controller = _make_hardware_controller(
+    #     nominal_clusters=DEBUG_NOMINAL_CLUSTERS,
+    #     outgoing_clusters=DEBUG_OUTGOING_CLUSTERS,
+    # )
     controller = _make_hardware_controller(
-        nominal_clusters=DEBUG_NOMINAL_CLUSTERS,
-        outgoing_clusters=DEBUG_OUTGOING_CLUSTERS,
+        nominal_clusters=40,
+        outgoing_clusters=40,
     )
 
     try:
