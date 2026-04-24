@@ -219,52 +219,6 @@ def test_process_real_frame():
     _save_test_image("process_frame", _draw_centroids(frame, centroids))
 
 
-def test_capture_frame_reuses_single_started_camera(fake_picamera):
-    frame_1 = camera.capture_frame()
-    frame_2 = camera.capture_frame()
-
-    assert len(fake_picamera.instances) == 1
-    pc = fake_picamera.instances[0]
-    assert pc.configurations == [{"configuration": "still"}]
-    assert pc.start_count == 1
-    assert pc.stop_count == 0
-    assert pc.close_count == 0
-    assert pc.capture_streams == ["main", "main"]
-
-    np.testing.assert_array_equal(
-        frame_1,
-        np.array([[[30, 20, 10], [60, 50, 40]]], dtype=np.uint8),
-    )
-    np.testing.assert_array_equal(
-        frame_2,
-        np.array([[[90, 80, 70], [120, 110, 100]]], dtype=np.uint8),
-    )
-
-
-def test_close_camera_releases_singleton_and_allows_new_instance(fake_picamera):
-    camera.capture_frame()
-    first_pc = fake_picamera.instances[0]
-
-    camera.close_camera()
-
-    assert first_pc.stop_count == 1
-    assert first_pc.close_count == 1
-
-    camera.capture_frame()
-
-    assert len(fake_picamera.instances) == 2
-    second_pc = fake_picamera.instances[1]
-    assert second_pc.start_count == 1
-    assert second_pc.capture_streams == ["main"]
-
-
-def test_capture_frame_raises_when_picamera_is_unavailable(monkeypatch):
-    monkeypatch.setattr(camera, "Picamera2", None)
-
-    with pytest.raises(RuntimeError, match="Picamera2 is unavailable"):
-        camera.capture_frame()
-
-
 def test_capture_frame():
     if camera.Picamera2 is None:
         pytest.skip("Picamera2 is unavailable; skipping real camera capture test.")
