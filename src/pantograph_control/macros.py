@@ -59,8 +59,6 @@ class DetectedCluster:
     pixel_y: int
     point: Point
 
-FISHEYE_SCALE = 0.85
-
 @dataclass(slots=True)
 class TransferConfig:
     serial_ports: tuple[str, ...] = ("/dev/ttyACM0", "/dev/ttyACM1", "COM3", "COM4", "COM6")
@@ -70,9 +68,10 @@ class TransferConfig:
     safe_home: Point = (-0.07, 0.20, 0.22)
     lid_center: Point = (0.0, 0.15, 0.05)
     output_center: Point = (-0.068, 0.2115, 0.023)
-    input_center: Point = (-0.158, 0.157, 0.023)
+    input_center: Point = (-0.158, 0.157, 0.0221)
+    fisheye_scale: float = 1.075
     dish_radius_m: float = 0.038
-    pick_height: float = 0.0225
+    pick_height: float = 0.0221
     place_height: float = 0.023
     lift_height: float = 0.035
     nominal_clusters: int = 45
@@ -483,8 +482,8 @@ class Controller(QObject):
             radius = self.config.dish_radius_m * radius_ratio
             for index in range(ring_count):
                 angle = (2 * math.pi * index) / ring_count
-                x = center_x + (radius * math.cos(angle))*FISHEYE_SCALE
-                y = center_y + (radius * math.sin(angle))*FISHEYE_SCALE
+                x = center_x + (radius * math.cos(angle))
+                y = center_y + (radius * math.sin(angle))
                 pattern.append((x, y, center_z))
                 if len(pattern) == count:
                     return pattern
@@ -507,8 +506,8 @@ class Controller(QObject):
         for px, py in centroids:
             offset_x = (px - mask_center_x) / radius_px
             offset_y = (py - mask_center_y) / radius_px
-            x_m = center_x_m + offset_x * radius_m
-            y_m = center_y_m + offset_y * radius_m
+            x_m = center_x_m + offset_x * radius_m * self.config.fisheye_scale
+            y_m = center_y_m + offset_y * radius_m * self.config.fisheye_scale
             if self._point_inside_dish(x_m, y_m, self.config.input_center, radius_m):
                 clusters.append(DetectedCluster(pixel_x=px, pixel_y=py, point=Point([x_m, y_m, self.config.pick_height])))
 

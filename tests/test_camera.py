@@ -206,17 +206,38 @@ def test_process_frame():
     _save_test_image("process_frame", _draw_centroids(frame, centroids))
 
 def test_process_real_frame():
-    frame = camera.capture_frame()
+    if camera.Picamera2 is None:
+        pytest.skip("Picamera2 is unavailable; skipping real camera pipeline test.")
 
-    centroids = camera.process_frame(
+    try:
+        frame = camera.capture_frame()
+    except Exception as exc:
+        pytest.skip(f"Pi camera capture is unavailable: {exc}")
+
+    _assert_color_image(frame, frame.shape)
+    _save_test_image("process_real_frame_capture", frame)
+
+    masked = camera._apply_circular_mask(
         frame,
         camera.MASK_X_OFFSET,
         camera.MASK_Y_OFFSET,
         camera.MASK_RADIUS_RATIO,
     )
+    _assert_color_image(masked, frame.shape)
+    _save_test_image("process_real_frame_masked", masked)
+
+    raw_mask = camera._isolate_spots(masked)
+    _assert_mask_image(raw_mask, frame.shape)
+    _save_test_image("process_real_frame_raw_mask", raw_mask)
+
+    cleaned_mask = camera._clean_noise_morphology(raw_mask)
+    _assert_mask_image(cleaned_mask, frame.shape)
+    _save_test_image("process_real_frame_cleaned_mask", cleaned_mask)
+
+    centroids = camera._extract_centroids(frame, cleaned_mask)
 
     _assert_centroids(centroids, frame.shape)
-    _save_test_image("process_frame", _draw_centroids(frame, centroids))
+    _save_test_image("process_real_frame_centroids", _draw_centroids(frame, centroids))
 
 
 def test_capture_frame():

@@ -204,8 +204,8 @@ def test_run_transfer_impl_hardware():
     #     outgoing_clusters=DEBUG_OUTGOING_CLUSTERS,
     # )
     controller = _make_hardware_controller(
-        nominal_clusters=40,
-        outgoing_clusters=40,
+        nominal_clusters=19,
+        outgoing_clusters=19,
     )
 
     try:

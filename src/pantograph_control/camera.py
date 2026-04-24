@@ -18,7 +18,7 @@ _camera = None
 MASK_RADIUS_RATIO = 0.474
 MASK_Y_OFFSET = -72
 MASK_X_OFFSET = -65
-MIN_CONTOUR_CIRCULARITY = 0.75
+MIN_CONTOUR_CIRCULARITY = 0.3
 
 def _apply_circular_mask(image, x_offset=0, y_offset=0, radius_ratio=0.45):
     h, w = image.shape[:2]
@@ -55,7 +55,7 @@ def _isolate_spots(masked_image):
 
     cx = w // 2 + MASK_X_OFFSET
     cy = h // 2 + MASK_Y_OFFSET
-    radius = int(0.99 * MASK_RADIUS_RATIO * min(h, w))
+    radius = int(0.95 * MASK_RADIUS_RATIO * min(h, w))
 
     cv2.circle(circle_mask, (cx, cy), radius, 255, -1)
 
@@ -66,11 +66,11 @@ def _isolate_spots(masked_image):
 
 def _clean_noise_morphology(color_mask):
     # Use a slightly larger kernel to bridge gaps in foam texture
-    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (13, 13))
+    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (7, 7))
     
     # Remove noise, then close holes
     opened = cv2.morphologyEx(color_mask, cv2.MORPH_OPEN, kernel, iterations=2)
-    cleaned_mask = cv2.morphologyEx(opened, cv2.MORPH_CLOSE, kernel, iterations=4)
+    cleaned_mask = cv2.morphologyEx(opened, cv2.MORPH_CLOSE, kernel, iterations=3)
     
     return cleaned_mask
 
