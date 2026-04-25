@@ -124,7 +124,12 @@ def _mask_pipeline(frame):
         camera.MASK_Y_OFFSET,
         camera.MASK_RADIUS_RATIO,
     )
-    raw_mask = camera._isolate_spots(masked)
+    raw_mask = camera._isolate_spots(
+        masked,
+        camera.MASK_X_OFFSET,
+        camera.MASK_Y_OFFSET,
+        camera.MASK_RADIUS_RATIO,
+    )
     return camera._clean_noise_morphology(raw_mask)
 
 
@@ -158,7 +163,12 @@ def test_isolate_spots():
         camera.MASK_RADIUS_RATIO,
     )
 
-    color_mask = camera._isolate_spots(masked)
+    color_mask = camera._isolate_spots(
+        masked,
+        camera.MASK_X_OFFSET,
+        camera.MASK_Y_OFFSET,
+        camera.MASK_RADIUS_RATIO,
+    )
 
     _assert_mask_image(color_mask, frame.shape)
     _save_test_image("_isolate_spots", color_mask)
@@ -172,7 +182,12 @@ def test_clean_noise_morphology():
         camera.MASK_Y_OFFSET,
         camera.MASK_RADIUS_RATIO,
     )
-    color_mask = camera._isolate_spots(masked)
+    color_mask = camera._isolate_spots(
+        masked,
+        camera.MASK_X_OFFSET,
+        camera.MASK_Y_OFFSET,
+        camera.MASK_RADIUS_RATIO,
+    )
 
     cleaned_mask = camera._clean_noise_morphology(color_mask)
 
@@ -226,7 +241,12 @@ def test_process_real_frame():
     _assert_color_image(masked, frame.shape)
     _save_test_image("process_real_frame_masked", masked)
 
-    raw_mask = camera._isolate_spots(masked)
+    raw_mask = camera._isolate_spots(
+        masked,
+        camera.MASK_X_OFFSET,
+        camera.MASK_Y_OFFSET,
+        camera.MASK_RADIUS_RATIO,
+    )
     _assert_mask_image(raw_mask, frame.shape)
     _save_test_image("process_real_frame_raw_mask", raw_mask)
 

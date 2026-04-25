@@ -18,7 +18,7 @@ _camera = None
 MASK_RADIUS_RATIO = 0.474
 MASK_Y_OFFSET = -72
 MASK_X_OFFSET = -65
-MIN_CONTOUR_CIRCULARITY = 0.3
+MIN_CONTOUR_CIRCULARITY = 0.5
 
 def _apply_circular_mask(image, x_offset=0, y_offset=0, radius_ratio=0.45):
     h, w = image.shape[:2]
@@ -30,7 +30,12 @@ def _apply_circular_mask(image, x_offset=0, y_offset=0, radius_ratio=0.45):
     masked_image = cv2.bitwise_and(image, image, mask=mask)
     return masked_image
 
-def _isolate_spots(masked_image):
+def _isolate_spots(
+    masked_image,
+    x_offset=MASK_X_OFFSET,
+    y_offset=MASK_Y_OFFSET,
+    radius_ratio=MASK_RADIUS_RATIO,
+):
     """
     Isolate dark circular spots.
     Only the region inside the circular mask is inverted.
@@ -48,14 +53,14 @@ def _isolate_spots(masked_image):
     gray = cv2.GaussianBlur(gray, (5, 5), 0)
 
     # Threshold dark spots normally: dark -> white
-    _, spot_mask = cv2.threshold(gray, 60, 255, cv2.THRESH_BINARY_INV)
+    _, spot_mask = cv2.threshold(gray, 80, 255, cv2.THRESH_BINARY_INV)
 
     # Create circular ROI mask
     circle_mask = np.zeros((h, w), dtype=np.uint8)
 
-    cx = w // 2 + MASK_X_OFFSET
-    cy = h // 2 + MASK_Y_OFFSET
-    radius = int(0.95 * MASK_RADIUS_RATIO * min(h, w))
+    cx = w // 2 + x_offset
+    cy = h // 2 + y_offset
+    radius = int(0.925 * radius_ratio * min(h, w))
 
     cv2.circle(circle_mask, (cx, cy), radius, 255, -1)
 
@@ -104,7 +109,7 @@ def _extract_centroids(original_image, cleaned_mask, min_area=3000, max_area=100
 
 def process_frame(frame, x_off=0, y_off=0, rad_ratio=0.45):
     img_masked = _apply_circular_mask(frame, x_off, y_off, rad_ratio)
-    raw_mask = _isolate_spots(img_masked)
+    raw_mask = _isolate_spots(img_masked, x_off, y_off, rad_ratio)
     clean_mask = _clean_noise_morphology(raw_mask)
     return _extract_centroids(frame, clean_mask)
 

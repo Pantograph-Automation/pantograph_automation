@@ -40,6 +40,7 @@ DISH_PATTERN_RING_SPECS = (
     (0.70, 15),
     (0.88, 17),
 )
+A5_AXIS_CENTER_XY = (-0.055, 0.0)
 
 
 class TaskError(RuntimeError):
@@ -69,7 +70,8 @@ class TransferConfig:
     lid_center: Point = (0.0, 0.15, 0.05)
     output_center: Point = (-0.068, 0.2115, 0.023)
     input_center: Point = (-0.158, 0.157, 0.0221)
-    fisheye_scale: float = 1.075
+    fisheye_scale: float = 1.00
+    a5_axis_scale: float = 1.15
     dish_radius_m: float = 0.038
     pick_height: float = 0.0221
     place_height: float = 0.023
@@ -262,6 +264,9 @@ class Controller(QObject):
             self.config.camera_mask_radius_ratio,
         )
         clusters = self._centroids_to_clusters(frame.shape, centroids)
+        self.log_message.emit(
+            f"Camera detected {len(centroids)} centroids; retained {len(clusters)} clusters after dish filtering."
+        )
         self._set_clusters(clusters)
         return f"Detected {len(clusters)} candidate clusters in dish A."
 
@@ -508,12 +513,29 @@ class Controller(QObject):
             offset_y = (py - mask_center_y) / radius_px
             x_m = center_x_m + offset_x * radius_m * self.config.fisheye_scale
             y_m = center_y_m + offset_y * radius_m * self.config.fisheye_scale
+            x_m, y_m = self._scale_point_along_a5_axis(x_m, y_m)
             if self._point_inside_dish(x_m, y_m, self.config.input_center, radius_m):
                 clusters.append(DetectedCluster(pixel_x=px, pixel_y=py, point=Point([x_m, y_m, self.config.pick_height])))
 
         clusters.sort(key=lambda cluster: (cluster.point[1], cluster.point[0]))
         return clusters
 
+    def _scale_point_along_a5_axis(self, x: float, y: float) -> tuple[float, float]:
+        center_x, center_y, _ = self.config.input_center
+        axis_x = A5_AXIS_CENTER_XY[0] - center_x
+        axis_y = A5_AXIS_CENTER_XY[1] - center_y
+        axis_length = math.hypot(axis_x, axis_y)
+        if axis_length == 0:
+            return x, y
+
+        unit_x = axis_x / axis_length
+        unit_y = axis_y / axis_length
+        vector_x = x - center_x
+        vector_y = y - center_y
+        projection = vector_x * unit_x + vector_y * unit_y
+        scale_delta = projection * (self.config.a5_axis_scale - 1.0)
+        return x + scale_delta * unit_x, y + scale_delta * unit_y
+
     @staticmethod
     def _point_inside_dish(x: float, y: float, center: Point, radius: float) -> bool:
-        return math.hypot(x - center[0], y - center[1]) <= radius
+        return math.hypot(x - center[0], y - center[1]) <= radius * 1.1
