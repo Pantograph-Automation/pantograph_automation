@@ -70,12 +70,13 @@ class TransferConfig:
     lid_center: Point = (0.0, 0.15, 0.05)
     output_center: Point = (-0.068, 0.2115, 0.023)
     input_center: Point = (-0.158, 0.157, 0.0221)
-    fisheye_scale: float = 1.00
-    a5_axis_scale: float = 1.15
+    fisheye_scale: float = 1.01
+    a5_axis_scale: float = 1.065
+    axis_scale_threshold: float = 0.027
     dish_radius_m: float = 0.038
     pick_height: float = 0.0221
-    place_height: float = 0.023
-    lift_height: float = 0.035
+    place_height: float = 0.024
+    lift_height: float = 0.038
     nominal_clusters: int = 45
     outgoing_clusters: int = 30
     manual_step_min_m: float = 0.001
@@ -513,7 +514,8 @@ class Controller(QObject):
             offset_y = (py - mask_center_y) / radius_px
             x_m = center_x_m + offset_x * radius_m * self.config.fisheye_scale
             y_m = center_y_m + offset_y * radius_m * self.config.fisheye_scale
-            x_m, y_m = self._scale_point_along_a5_axis(x_m, y_m)
+            if radius_m >= self.config.axis_scale_threshold:
+                x_m, y_m = self._scale_point_along_a5_axis(x_m, y_m)
             if self._point_inside_dish(x_m, y_m, self.config.input_center, radius_m):
                 clusters.append(DetectedCluster(pixel_x=px, pixel_y=py, point=Point([x_m, y_m, self.config.pick_height])))
 
@@ -538,4 +540,4 @@ class Controller(QObject):
 
     @staticmethod
     def _point_inside_dish(x: float, y: float, center: Point, radius: float) -> bool:
-        return math.hypot(x - center[0], y - center[1]) <= radius * 1.1
+        return math.hypot(x - center[0], y - center[1]) <= radius * 1.30
