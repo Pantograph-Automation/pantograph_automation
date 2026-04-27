@@ -71,11 +71,11 @@ class TransferConfig:
     lid_holder: Point = (0.004, 0.080, 0.0)
     lid_place: Point = (-0.116, 0.104, 0.0151)
     output_center: Point = (-0.069, 0.210, 0.023)
-    input_center: Point = (-0.159, 0.1565, 0.022)
-    fisheye_scale: float = 1.04
-    fisheye_threshold: float = 0.022
+    input_center: Point = (-0.1580, 0.1560, 0.022)
+    fisheye_scale: tuple[float, ...] = (1.03, 1.08)
+    fisheye_threshold: tuple[float, ...] = (0.023, 0.031)
     a5_axis_scale: float = 1.03
-    axis_scale_threshold: float = 0.027
+    axis_scale_threshold: float = 0.030
     dish_radius_m: float = 0.038
     pick_height: float = 0.0220
     place_height: float = 0.0235
@@ -575,12 +575,19 @@ class Controller(QObject):
         for px, py in centroids:
             offset_x = (px - mask_center_x) / radius_px
             offset_y = (py - mask_center_y) / radius_px
-            fi_scale = self.config.fisheye_scale
-            if radius_m <= self.config.fisheye_threshold:
+
+            local_radius = math.hypot(offset_x * radius_m, offset_y * radius_m)
+            
+            if local_radius >= self.config.fisheye_threshold[1]:
+                fi_scale = self.config.fisheye_scale[1]
+            elif local_radius >= self.config.fisheye_threshold[0]:
+                fi_scale = self.config.fisheye_scale[0]
+            else:
                 fi_scale = 1.0
+            
             x_m = center_x_m + offset_x * radius_m * fi_scale
             y_m = center_y_m + offset_y * radius_m * fi_scale
-            if radius_m >= self.config.axis_scale_threshold:
+            if local_radius >= self.config.axis_scale_threshold:
                 x_m, y_m = self._scale_point_along_a5_axis(x_m, y_m)
             if self._point_inside_dish(x_m, y_m, self.config.input_center, radius_m):
                 clusters.append(DetectedCluster(pixel_x=px, pixel_y=py, point=Point([x_m, y_m, self.config.pick_height])))
