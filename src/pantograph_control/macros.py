@@ -60,6 +60,14 @@ class DetectedCluster:
     pixel_y: int
     point: Point
 
+
+@dataclass(slots=True)
+class TransferPlan:
+    planned_count: int
+    source_slots: range
+    destination_slots: range
+
+
 @dataclass(slots=True)
 class TransferConfig:
     serial_ports: tuple[str, ...] = ("/dev/ttyACM0", "/dev/ttyACM1", "COM3", "COM4", "COM6")
@@ -104,6 +112,8 @@ class ControllerStatus:
     last_error: str = ""
     detected_count: int = 0
     transferred_count: int = 0
+    source_offset: int = 0
+    destination_offset: int = 0
     active_source: str = "Dish A"
     active_destination: str = "Dish B"
     destination_positions: list[Point] = field(default_factory=list)
@@ -279,10 +289,8 @@ class Controller(QObject):
             raise TaskError("Run blocked: calibrate before starting a transfer.")
 
         self._ensure_connection()
-        planned_count = self._planned_transfer_count()
-        source_start = self._source_offset
-        destination_start = self._destination_offset
-        source_stop = source_start + planned_count
+        transfer_plan = self._current_transfer_plan()
+        planned_count = transfer_plan.planned_count
 
         output_midpoint = Point([
             self.config.output_center[0],
@@ -303,21 +311,15 @@ class Controller(QObject):
         self._place_lid_on_holder()
         self._move_to(output_midpoint)
 
-        clusters_by_source_slot = self._match_clusters_to_source_slots(self._clusters)
+        transfer_clusters = self._select_clusters_for_transfer(planned_count)
         destinations = self.status.destination_positions
 
         transferred_count = 0
-        for batch_index, source_slot_index in enumerate(range(source_start, source_stop), start=1):
-            destination_index = destination_start + batch_index - 1
-            destination = destinations[destination_index]
-            cluster = clusters_by_source_slot.get(source_slot_index)
-            if cluster is None:
-                self._set_status(
-                    detail=f"Skipping missing cluster {batch_index}/{planned_count}",
-                    transferred_count=transferred_count,
-                )
-                continue
-
+        for batch_index, (cluster, destination_slot_index) in enumerate(
+            zip(transfer_clusters, transfer_plan.destination_slots),
+            start=1,
+        ):
+            destination = destinations[destination_slot_index]
             self._set_status(
                 detail=f"Transferring cluster {batch_index}/{planned_count}",
                 transferred_count=transferred_count,
@@ -474,12 +476,30 @@ class Controller(QObject):
             raise TaskError(f"{error_prefix} Serial response: {result.message}")
 
     def _planned_transfer_count(self) -> int:
+        return self._current_transfer_plan().planned_count
+
+    def _current_transfer_plan(self) -> TransferPlan:
         source_remaining = self.config.nominal_clusters - self._source_offset
         destination_remaining = self.config.outgoing_clusters - self._destination_offset
         planned_count = min(source_remaining, destination_remaining)
         if planned_count <= 0:
             raise TaskError("Transfer cycle state is invalid; no source or destination slots are available.")
-        return planned_count
+        return TransferPlan(
+            planned_count=planned_count,
+            source_slots=range(self._source_offset, self._source_offset + planned_count),
+            destination_slots=range(
+                self._destination_offset,
+                self._destination_offset + planned_count,
+            ),
+        )
+
+    def _select_clusters_for_transfer(self, planned_count: int) -> list[DetectedCluster]:
+        if len(self._clusters) < planned_count:
+            raise TaskError(
+                f"Transfer blocked: detected {len(self._clusters)} clusters, "
+                f"but {planned_count} are required for this run."
+            )
+        return self.clusters[:planned_count]
 
     def _advance_transfer_cycle(self, planned_count: int) -> str:
         self._source_offset += planned_count
@@ -492,6 +512,11 @@ class Controller(QObject):
             self._source_offset = 0
         if replace_destination:
             self._destination_offset = 0
+
+        self._set_status(
+            source_offset=self._source_offset,
+            destination_offset=self._destination_offset,
+        )
 
         if replace_source and replace_destination:
             return "Replace the incoming and outgoing dishes before the next run."

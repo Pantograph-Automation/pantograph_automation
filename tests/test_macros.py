@@ -103,6 +103,101 @@ def _assert_clusters_match_frame(controller, clusters, frame_shape):
             <= controller.config.dish_radius_m + 1e-12
         )
 
+
+def _make_cycle_controller(nominal_clusters, outgoing_clusters):
+    return Controller(
+        TransferConfig(
+            nominal_clusters=nominal_clusters,
+            outgoing_clusters=outgoing_clusters,
+        )
+    )
+
+
+def _advance_cycle(controller):
+    plan = controller._current_transfer_plan()
+    before = (controller._source_offset, controller._destination_offset)
+    controller._advance_transfer_cycle(plan.planned_count)
+    after = (controller._source_offset, controller._destination_offset)
+    return before, plan.planned_count, after
+
+
+def _clusters_from_points(points):
+    return [
+        DetectedCluster(pixel_x=index, pixel_y=index, point=point)
+        for index, point in enumerate(points)
+    ]
+
+
+def _full_cycle_cases(nominal_clusters, outgoing_clusters):
+    if (nominal_clusters, outgoing_clusters) == (45, 30):
+        return [
+            ((0, 0), 30, (30, 0)),
+            ((30, 0), 15, (0, 15)),
+            ((0, 15), 15, (15, 0)),
+            ((15, 0), 30, (0, 0)),
+        ]
+    if (nominal_clusters, outgoing_clusters) == (30, 20):
+        return [
+            ((0, 0), 20, (20, 0)),
+            ((20, 0), 10, (0, 10)),
+            ((0, 10), 10, (10, 0)),
+            ((10, 0), 20, (0, 0)),
+        ]
+    raise ValueError("Expected a 45:30 or 30:20 cycle.")
+
+
+def test_transfer_cycle_advances_45_to_30():
+    controller = _make_cycle_controller(45, 30)
+
+    assert [_advance_cycle(controller) for _ in range(4)] == _full_cycle_cases(45, 30)
+
+
+def test_transfer_cycle_advances_30_to_20():
+    controller = _make_cycle_controller(30, 20)
+
+    assert [_advance_cycle(controller)[1] for _ in range(4)] == [20, 10, 10, 20]
+
+
+def test_output_offset_survives_input_replacement():
+    controller = _make_cycle_controller(45, 30)
+
+    _advance_cycle(controller)
+    _advance_cycle(controller)
+    next_plan = controller._current_transfer_plan()
+
+    assert controller._source_offset == 0
+    assert controller._destination_offset == 15
+    assert list(next_plan.destination_slots) == list(range(15, 30))
+
+
+def test_second_run_selects_currently_detected_clusters():
+    controller = _make_cycle_controller(45, 30)
+    controller._source_offset = 30
+    controller._clusters = _clusters_from_points(controller._build_source_pattern()[:15])
+
+    assert controller._select_clusters_for_transfer(15) == controller.clusters
+
+
+def test_insufficient_detected_clusters_blocks_transfer_without_advancing(monkeypatch):
+    controller = _make_cycle_controller(45, 30)
+    controller._source_offset = 30
+    controller._set_status(calibrated=True)
+    controller._clusters = _clusters_from_points(controller._build_source_pattern()[:14])
+
+    monkeypatch.setattr(controller, "_ensure_connection", lambda: None)
+    monkeypatch.setattr(controller, "_pick_lid_from_holder", lambda: None)
+    monkeypatch.setattr(controller, "_place_lid_on_input", lambda: None)
+    monkeypatch.setattr(controller, "_pick_lid_from_input", lambda: None)
+    monkeypatch.setattr(controller, "_place_lid_on_holder", lambda: None)
+    monkeypatch.setattr(controller, "_move_to", lambda point: None)
+    monkeypatch.setattr(controller, "_capture_clusters_impl", lambda: "Detected 14 candidate clusters in dish A.")
+
+    with pytest.raises(TaskError, match="detected 14 clusters, but 15 are required"):
+        controller._run_transfer_impl()
+
+    assert (controller._source_offset, controller._destination_offset) == (30, 0)
+
+
 def test_calibrate_impl_hardware():
     controller = _make_hardware_controller()
 
@@ -195,15 +290,68 @@ def test_center_output_impl_hardware():
     finally:
         _close_controller_connection(controller)
 
+
+def _prompt_full_cycle_ratio():
+    raw_ratio = input("Run full cycle ratio [45:30 or 30:20] (default 45:30) >> ").strip()
+    ratio = raw_ratio or "45:30"
+    if ratio == "45:30":
+        return 45, 30
+    if ratio == "30:20":
+        return 30, 20
+    raise ValueError(f"Unsupported full cycle ratio: {ratio}")
+
+
+def test_run_full_cycle_impl_hardware():
+    _camera_frame_shape_or_skip()
+    nominal_clusters, outgoing_clusters = _prompt_full_cycle_ratio()
+    controller = _make_hardware_controller(
+        nominal_clusters=nominal_clusters,
+        outgoing_clusters=outgoing_clusters,
+    )
+
+    try:
+        if input("Calibrate? >> ") == 'n':
+            controller._set_status(calibrated=True)
+        else:
+            controller._calibrate_impl()
+
+        controller._set_status(calibrated=True)
+
+        for run_index, (before, planned_count, after) in enumerate(
+            _full_cycle_cases(nominal_clusters, outgoing_clusters),
+            start=1,
+        ):
+            assert (controller._source_offset, controller._destination_offset) == before
+            print(
+                f"\nRun {run_index}/4 for {nominal_clusters}:{outgoing_clusters}: "
+                f"source_offset={before[0]}, destination_offset={before[1]}, "
+                f"planned={planned_count}"
+            )
+            input("Confirm dishes are loaded for this run, then press Enter. >> ")
+
+            result = controller._run_transfer_impl()
+            print(result)
+
+            assert re.fullmatch(
+                (
+                    rf"Transferred {planned_count} of {planned_count} planned clusters "
+                    r"from Dish A to Dish B\. .+"
+                ),
+                result,
+            )
+            assert (controller._source_offset, controller._destination_offset) == after
+
+            if run_index < 4:
+                input("Swap dishes as instructed above, then press Enter for the next run. >> ")
+    finally:
+        _close_controller_connection(controller)
+
+
 def test_run_transfer_impl_hardware():
     frame_shape = _camera_frame_shape_or_skip()
-    # controller = _make_hardware_controller(
-    #     nominal_clusters=DEBUG_NOMINAL_CLUSTERS,
-    #     outgoing_clusters=DEBUG_OUTGOING_CLUSTERS,
-    # )
     controller = _make_hardware_controller(
-        nominal_clusters=45,
-        outgoing_clusters=30,
+        nominal_clusters=15,
+        outgoing_clusters=15,
     )
 
     try:
@@ -237,6 +385,9 @@ DEBUG_ALIASES = {
     "capture_clusters_impl": "test_capture_clusters_impl_hardware",
     "_run_transfer_impl": "test_run_transfer_impl_hardware",
     "run_transfer_impl": "test_run_transfer_impl_hardware",
+    "full_cycle": "test_run_full_cycle_impl_hardware",
+    "run_full_cycle_impl": "test_run_full_cycle_impl_hardware",
+    "test_run_full_cycle_impl": "test_run_full_cycle_impl_hardware",
     "_manual_jog_impl": "test_manual_jog_impl_hardware",
     "manual_jog_impl": "test_manual_jog_impl_hardware",
     "_center_input_impl": "test_center_input_impl_hardware",
