@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'MainWindow.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.10.0
+## Created by: Qt User Interface Compiler version 6.11.0
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -16,443 +16,406 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QApplication, QComboBox, QFrame, QHBoxLayout,
-    QLabel, QLayout, QLineEdit, QMainWindow,
-    QPushButton, QSizePolicy, QSpacerItem, QStatusBar,
-    QVBoxLayout, QWidget)
+    QLabel, QMainWindow, QProgressBar, QPushButton,
+    QSizePolicy, QSpacerItem, QStatusBar, QVBoxLayout,
+    QWidget)
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(680, 443)
-        MainWindow.setStyleSheet(u"/* --- Global & Base Widget --- */\n"
-"QWidget {\n"
-"    background-color: #ffffff;\n"
-"    color: #333333;\n"
-"    font-family: \"Segoe UI\", \"Helvetica Neue\", sans-serif;\n"
+        MainWindow.resize(860, 560)
+        MainWindow.setMinimumSize(QSize(780, 520))
+        MainWindow.setStyleSheet(u"QWidget {\n"
+"    background-color: #f6f8fb;\n"
+"    color: #1f2937;\n"
+"    font-family: \"Segoe UI\", \"Helvetica Neue\", Arial, sans-serif;\n"
 "    font-size: 14px;\n"
 "}\n"
 "\n"
-"/* --- Labels --- */\n"
-"/* Normal Text Label */\n"
+"QFrame#headerFrame,\n"
+"QFrame#setupFrame,\n"
+"QFrame#progressFrame,\n"
+"QFrame#metricsFrame,\n"
+"QFrame#poseFrame {\n"
+"    background-color: #ffffff;\n"
+"    border: 1px solid #d9e2ec;\n"
+"    border-radius: 8px;\n"
+"}\n"
+"\n"
 "QLabel {\n"
-"    color: #666666;\n"
 "    background: transparent;\n"
+"    color: #475569;\n"
 "}\n"
 "\n"
-"/* Header Label (Set objectName to 'headerLabel') */\n"
-"QLabel#headerLabel {\n"
-"    font-size: 24px;\n"
-"    font-weight: bold;\n"
-"    color: #1a1a1a;\n"
-"    margin-bottom: 10px;\n"
+"QLabel#titleLabel {\n"
+"    color: #0f172a;\n"
+"    font-size: 28px;\n"
+"    font-weight: 700;\n"
 "}\n"
 "\n"
-"/* --- Buttons --- */\n"
-"/* Primary Button (Default) - Dark & Solid */\n"
-"QPushButton {\n"
-"    background-color: #1a1a1a;\n"
+"QLabel#sectionLabel,\n"
+"QLabel#cycleTitleLabel {\n"
+"    color: #111827;\n"
+"    font-size: 17px;\n"
+"    font-weight: 700;\n"
+"}\n"
+"\n"
+"QLabel#readinessLabel {\n"
 "    color: #ffffff;\n"
+"    border-radius: 16px;\n"
+"    padding: 6px 14px;\n"
+"    font-weight: 700;\n"
+"}\n"
+"\n"
+"QLabel#stateLabel {\n"
+"    color: #334155;\n"
+"    font-size: 16px;\n"
+"    font-weight: 700;\n"
+"}\n"
+"\n"
+"QLabel#detailLabel,\n"
+"QL"
+                        "abel#poseValueLabel {\n"
+"    color: #64748b;\n"
+"}\n"
+"\n"
+"QLabel#metricValueLabel,\n"
+"QLabel#detectedValueLabel,\n"
+"QLabel#transferredValueLabel,\n"
+"QLabel#nextBatchValueLabel {\n"
+"    color: #0f172a;\n"
+"    font-size: 24px;\n"
+"    font-weight: 700;\n"
+"}\n"
+"\n"
+"QComboBox {\n"
+"    background-color: #ffffff;\n"
+"    border: 1px solid #cbd5e1;\n"
+"    border-radius: 6px;\n"
+"    padding: 8px 12px;\n"
+"    min-height: 22px;\n"
+"}\n"
+"\n"
+"QComboBox:disabled {\n"
+"    background-color: #eef2f7;\n"
+"    color: #94a3b8;\n"
+"}\n"
+"\n"
+"QProgressBar {\n"
+"    background-color: #e8edf4;\n"
 "    border: none;\n"
-"    border-radius: 5px;\n"
-"    padding: 10px 20px;\n"
-"    font-weight: 600;\n"
+"    border-radius: 6px;\n"
+"    height: 12px;\n"
+"    text-align: center;\n"
+"    color: transparent;\n"
 "}\n"
 "\n"
-"QPushButton:hover {\n"
-"    background-color: #333333;\n"
+"QProgressBar::chunk {\n"
+"    background-color: #2563eb;\n"
+"    border-radius: 6px;\n"
 "}\n"
 "\n"
-"QPushButton:pressed {\n"
-"    background-color: #000000;\n"
+"QPushButton {\n"
+"    border: none;\n"
+"    border-radius: 6px;\n"
+"    padding: 11px 18px;\n"
+"    font-weight: 700;\n"
 "}\n"
 "\n"
-"/* Secondary Button (Set objectName to 'secondaryButton') - Outlined"
-                        " */\n"
-"QPushButton#secondaryButton {\n"
-"    background-color: transparent;\n"
-"    color: #1a1a1a;\n"
-"    border: 1px solid #1a1a1a;\n"
+"QPushButton#runButton {\n"
+"    background-color: #1"
+                        "d4ed8;\n"
+"    color: #ffffff;\n"
 "}\n"
 "\n"
-"QPushButton#secondaryButton:hover {\n"
-"    background-color: #f4f4f4;\n"
+"QPushButton#runButton:hover {\n"
+"    background-color: #1e40af;\n"
 "}\n"
 "\n"
-"QPushButton#secondaryButton:pressed {\n"
-"    background-color: #e0e0e0;\n"
+"QPushButton#calibrateButton {\n"
+"    background-color: #ffffff;\n"
+"    color: #1d4ed8;\n"
+"    border: 1px solid #93c5fd;\n"
 "}\n"
 "\n"
-"/* --- Checkbox --- */\n"
-"QCheckBox {\n"
-"    spacing: 10px;\n"
+"QPushButton#calibrateButton:hover {\n"
+"    background-color: #eff6ff;\n"
 "}\n"
 "\n"
-"QCheckBox::indicator {\n"
-"    width: 18px;\n"
-"    height: 18px;\n"
-"    border: 1px solid #cccccc;\n"
-"    border-radius: 3px;\n"
-"    background-color: white;\n"
-"}\n"
-"\n"
-"QCheckBox::indicator:hover {\n"
-"    border: 1px solid #1a1a1a;\n"
-"}\n"
-"\n"
-"QCheckBox::indicator:checked {\n"
-"    background-color: #1a1a1a;\n"
-"    border: 1px solid #1a1a1a;\n"
-"    /* Note: To show a checkmark icon, you would typically \n"
-"       reference a resource file image here */\n"
+"QPushButton:disabled {\n"
+"    background-color: #e2e8f0;\n"
+"    color: #94a3b8;\n"
+"    border: 1px solid #dbe3ee;\n"
 "}")
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
-        self.verticalLayout_6 = QVBoxLayout(self.centralwidget)
-        self.verticalLayout_6.setObjectName(u"verticalLayout_6")
-        self.horizontalLayout_5 = QHBoxLayout()
-        self.horizontalLayout_5.setObjectName(u"horizontalLayout_5")
-        self.horizontalSpacer_2 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
-
-        self.horizontalLayout_5.addItem(self.horizontalSpacer_2)
-
-        self.frame = QFrame(self.centralwidget)
-        self.frame.setObjectName(u"frame")
-        self.frame.setMinimumSize(QSize(300, 120))
-        self.frame.setStyleSheet(u"")
-        self.frame.setFrameShape(QFrame.Shape.StyledPanel)
-        self.frame.setFrameShadow(QFrame.Shadow.Raised)
-        self.horizontalLayout_6 = QHBoxLayout(self.frame)
-        self.horizontalLayout_6.setObjectName(u"horizontalLayout_6")
-        self.headerLabel = QLabel(self.frame)
-        self.headerLabel.setObjectName(u"headerLabel")
-        self.headerLabel.setMinimumSize(QSize(130, 90))
-
-        self.horizontalLayout_6.addWidget(self.headerLabel)
-
-        self.verticalLayout = QVBoxLayout()
-        self.verticalLayout.setObjectName(u"verticalLayout")
-        self.verticalLayout.setContentsMargins(-1, 5, -1, 5)
-        self.topStatusLabel = QLabel(self.frame)
-        self.topStatusLabel.setObjectName(u"topStatusLabel")
-        self.topStatusLabel.setMinimumSize(QSize(100, 40))
-        self.topStatusLabel.setStyleSheet(u"QLabel {\n"
-"    background-color: black;\n"
-"    border-radius: 20px;  /* makes a circle if width = height */\n"
-"}")
-        self.topStatusLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
-
-        self.verticalLayout.addWidget(self.topStatusLabel)
-
-        self.bottomStatusLabel = QLabel(self.frame)
-        self.bottomStatusLabel.setObjectName(u"bottomStatusLabel")
-        self.bottomStatusLabel.setMinimumSize(QSize(100, 40))
-        self.bottomStatusLabel.setStyleSheet(u"QLabel {\n"
-"    background-color: black;\n"
-"    border-radius: 20px;  /* makes a circle if width = height */\n"
-"}")
-        self.bottomStatusLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
-
-        self.verticalLayout.addWidget(self.bottomStatusLabel)
-
-
-        self.horizontalLayout_6.addLayout(self.verticalLayout)
-
-
-        self.horizontalLayout_5.addWidget(self.frame)
-
-        self.horizontalSpacer_3 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
-
-        self.horizontalLayout_5.addItem(self.horizontalSpacer_3)
-
-
-        self.verticalLayout_6.addLayout(self.horizontalLayout_5)
-
-        self.verticalSpacer_2 = QSpacerItem(17, 13, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Minimum)
-
-        self.verticalLayout_6.addItem(self.verticalSpacer_2)
-
-        self.horizontalLayout = QHBoxLayout()
-        self.horizontalLayout.setSpacing(20)
-        self.horizontalLayout.setObjectName(u"horizontalLayout")
-        self.horizontalLayout.setSizeConstraint(QLayout.SizeConstraint.SetDefaultConstraint)
-        self.dishLabelA = QLabel(self.centralwidget)
-        self.dishLabelA.setObjectName(u"dishLabelA")
-        self.dishLabelA.setMinimumSize(QSize(100, 100))
-        self.dishLabelA.setMaximumSize(QSize(100, 100))
-        self.dishLabelA.setStyleSheet(u"QLabel {\n"
-"    background-color: black;\n"
-"    border-radius: 50px;  /* makes a circle if width = height */\n"
-"}")
-        self.dishLabelA.setAlignment(Qt.AlignmentFlag.AlignCenter)
-
-        self.horizontalLayout.addWidget(self.dishLabelA)
-
-        self.dishLabelB = QLabel(self.centralwidget)
-        self.dishLabelB.setObjectName(u"dishLabelB")
-        self.dishLabelB.setMinimumSize(QSize(100, 100))
-        self.dishLabelB.setMaximumSize(QSize(100, 100))
-        self.dishLabelB.setStyleSheet(u"QLabel {\n"
-"    background-color: black;\n"
-"    border-radius: 50px;  /* makes a circle if width = height */\n"
-"}")
-        self.dishLabelB.setAlignment(Qt.AlignmentFlag.AlignCenter)
-
-        self.horizontalLayout.addWidget(self.dishLabelB)
-
-        self.dishLabelC = QLabel(self.centralwidget)
-        self.dishLabelC.setObjectName(u"dishLabelC")
-        self.dishLabelC.setMinimumSize(QSize(100, 100))
-        self.dishLabelC.setMaximumSize(QSize(100, 100))
-        self.dishLabelC.setStyleSheet(u"QLabel {\n"
-"    background-color: black;\n"
-"    border-radius: 50px;  /* makes a circle if width = height */\n"
-"}")
-        self.dishLabelC.setAlignment(Qt.AlignmentFlag.AlignCenter)
-
-        self.horizontalLayout.addWidget(self.dishLabelC)
-
-        self.dishLabelD = QLabel(self.centralwidget)
-        self.dishLabelD.setObjectName(u"dishLabelD")
-        self.dishLabelD.setMinimumSize(QSize(100, 100))
-        self.dishLabelD.setMaximumSize(QSize(100, 100))
-        self.dishLabelD.setStyleSheet(u"QLabel {\n"
-"    background-color: black;\n"
-"    border-radius: 50px;  /* makes a circle if width = height */\n"
-"}\n"
-"")
-        self.dishLabelD.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.mainLayout = QVBoxLayout(self.centralwidget)
+        self.mainLayout.setSpacing(16)
+        self.mainLayout.setObjectName(u"mainLayout")
+        self.mainLayout.setContentsMargins(24, 24, 24, 18)
+        self.headerFrame = QFrame(self.centralwidget)
+        self.headerFrame.setObjectName(u"headerFrame")
+        self.headerFrame.setFrameShape(QFrame.Shape.StyledPanel)
+        self.headerLayout = QHBoxLayout(self.headerFrame)
+        self.headerLayout.setSpacing(18)
+        self.headerLayout.setObjectName(u"headerLayout")
+        self.headerLayout.setContentsMargins(18, 16, 18, 16)
+        self.titleLayout = QVBoxLayout()
+        self.titleLayout.setSpacing(4)
+        self.titleLayout.setObjectName(u"titleLayout")
+        self.titleLabel = QLabel(self.headerFrame)
+        self.titleLabel.setObjectName(u"titleLabel")
 
-        self.horizontalLayout.addWidget(self.dishLabelD)
+        self.titleLayout.addWidget(self.titleLabel)
 
+        self.detailLabel = QLabel(self.headerFrame)
+        self.detailLabel.setObjectName(u"detailLabel")
+        self.detailLabel.setWordWrap(True)
 
-        self.verticalLayout_6.addLayout(self.horizontalLayout)
+        self.titleLayout.addWidget(self.detailLabel)
 
-        self.horizontalLayout_11 = QHBoxLayout()
-        self.horizontalLayout_11.setObjectName(u"horizontalLayout_11")
-        self.frame_2 = QFrame(self.centralwidget)
-        self.frame_2.setObjectName(u"frame_2")
-        self.frame_2.setFrameShape(QFrame.Shape.StyledPanel)
-        self.frame_2.setFrameShadow(QFrame.Shadow.Raised)
-        self.horizontalLayout_7 = QHBoxLayout(self.frame_2)
-        self.horizontalLayout_7.setObjectName(u"horizontalLayout_7")
-        self.label_5 = QLabel(self.frame_2)
-        self.label_5.setObjectName(u"label_5")
-        self.label_5.setMinimumSize(QSize(60, 30))
-        self.label_5.setStyleSheet(u"QLabel {\n"
-"    font-size: 18px;\n"
-"    font-weight: bold;\n"
-"    color: #1a1a1a;\n"
-"    margin-bottom: 10px;\n"
-"}\n"
-"")
-        self.label_5.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
-
-        self.horizontalLayout_7.addWidget(self.label_5)
-
-        self.horizontalSpacer = QSpacerItem(0, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
-
-        self.horizontalLayout_7.addItem(self.horizontalSpacer)
-
-        self.verticalLayout_2 = QVBoxLayout()
-        self.verticalLayout_2.setObjectName(u"verticalLayout_2")
-        self.lineEditA = QLineEdit(self.frame_2)
-        self.lineEditA.setObjectName(u"lineEditA")
-        self.lineEditA.setMinimumSize(QSize(40, 25))
 
-        self.verticalLayout_2.addWidget(self.lineEditA)
+        self.headerLayout.addLayout(self.titleLayout)
 
-        self.comboBoxA = QComboBox(self.frame_2)
-        self.comboBoxA.setObjectName(u"comboBoxA")
-        self.comboBoxA.setMinimumSize(QSize(40, 25))
-        self.comboBoxA.setMaxVisibleItems(5)
-        self.comboBoxA.setMaxCount(5)
+        self.headerSpacer = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
-        self.verticalLayout_2.addWidget(self.comboBoxA)
+        self.headerLayout.addItem(self.headerSpacer)
 
+        self.statusLayout = QVBoxLayout()
+        self.statusLayout.setSpacing(8)
+        self.statusLayout.setObjectName(u"statusLayout")
+        self.readinessLabel = QLabel(self.headerFrame)
+        self.readinessLabel.setObjectName(u"readinessLabel")
+        self.readinessLabel.setMinimumSize(QSize(126, 34))
+        self.readinessLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-        self.horizontalLayout_7.addLayout(self.verticalLayout_2)
+        self.statusLayout.addWidget(self.readinessLabel)
 
+        self.stateLabel = QLabel(self.headerFrame)
+        self.stateLabel.setObjectName(u"stateLabel")
+        self.stateLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-        self.horizontalLayout_11.addWidget(self.frame_2)
+        self.statusLayout.addWidget(self.stateLabel)
 
-        self.frame_3 = QFrame(self.centralwidget)
-        self.frame_3.setObjectName(u"frame_3")
-        self.frame_3.setFrameShape(QFrame.Shape.StyledPanel)
-        self.frame_3.setFrameShadow(QFrame.Shadow.Raised)
-        self.horizontalLayout_8 = QHBoxLayout(self.frame_3)
-        self.horizontalLayout_8.setObjectName(u"horizontalLayout_8")
-        self.label_6 = QLabel(self.frame_3)
-        self.label_6.setObjectName(u"label_6")
-        self.label_6.setMinimumSize(QSize(60, 30))
-        self.label_6.setStyleSheet(u"QLabel {\n"
-"    font-size: 18px;\n"
-"    font-weight: bold;\n"
-"    color: #1a1a1a;\n"
-"    margin-bottom: 10px;\n"
-"}\n"
-"")
-        self.label_6.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
-
-        self.horizontalLayout_8.addWidget(self.label_6)
 
-        self.horizontalSpacer_4 = QSpacerItem(1, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+        self.headerLayout.addLayout(self.statusLayout)
 
-        self.horizontalLayout_8.addItem(self.horizontalSpacer_4)
 
-        self.verticalLayout_3 = QVBoxLayout()
-        self.verticalLayout_3.setObjectName(u"verticalLayout_3")
-        self.lineEditB = QLineEdit(self.frame_3)
-        self.lineEditB.setObjectName(u"lineEditB")
-        self.lineEditB.setMinimumSize(QSize(40, 25))
+        self.mainLayout.addWidget(self.headerFrame)
 
-        self.verticalLayout_3.addWidget(self.lineEditB)
+        self.contentLayout = QHBoxLayout()
+        self.contentLayout.setSpacing(16)
+        self.contentLayout.setObjectName(u"contentLayout")
+        self.leftColumnLayout = QVBoxLayout()
+        self.leftColumnLayout.setSpacing(16)
+        self.leftColumnLayout.setObjectName(u"leftColumnLayout")
+        self.setupFrame = QFrame(self.centralwidget)
+        self.setupFrame.setObjectName(u"setupFrame")
+        self.setupFrame.setFrameShape(QFrame.Shape.StyledPanel)
+        self.setupLayout = QVBoxLayout(self.setupFrame)
+        self.setupLayout.setSpacing(12)
+        self.setupLayout.setObjectName(u"setupLayout")
+        self.setupLayout.setContentsMargins(18, 16, 18, 16)
+        self.cycleTitleLabel = QLabel(self.setupFrame)
+        self.cycleTitleLabel.setObjectName(u"cycleTitleLabel")
 
-        self.comboBoxB = QComboBox(self.frame_3)
-        self.comboBoxB.setObjectName(u"comboBoxB")
-        self.comboBoxB.setMinimumSize(QSize(40, 25))
+        self.setupLayout.addWidget(self.cycleTitleLabel)
 
-        self.verticalLayout_3.addWidget(self.comboBoxB)
+        self.ratioLayout = QHBoxLayout()
+        self.ratioLayout.setSpacing(12)
+        self.ratioLayout.setObjectName(u"ratioLayout")
+        self.ratioLabel = QLabel(self.setupFrame)
+        self.ratioLabel.setObjectName(u"ratioLabel")
 
+        self.ratioLayout.addWidget(self.ratioLabel)
 
-        self.horizontalLayout_8.addLayout(self.verticalLayout_3)
+        self.ratioSpacer = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
+        self.ratioLayout.addItem(self.ratioSpacer)
 
-        self.horizontalLayout_11.addWidget(self.frame_3)
+        self.ratioComboBox = QComboBox(self.setupFrame)
+        self.ratioComboBox.addItem("")
+        self.ratioComboBox.addItem("")
+        self.ratioComboBox.setObjectName(u"ratioComboBox")
+        self.ratioComboBox.setMinimumSize(QSize(128, 38))
 
-        self.frame_4 = QFrame(self.centralwidget)
-        self.frame_4.setObjectName(u"frame_4")
-        self.frame_4.setFrameShape(QFrame.Shape.StyledPanel)
-        self.frame_4.setFrameShadow(QFrame.Shadow.Raised)
-        self.horizontalLayout_9 = QHBoxLayout(self.frame_4)
-        self.horizontalLayout_9.setObjectName(u"horizontalLayout_9")
-        self.label_7 = QLabel(self.frame_4)
-        self.label_7.setObjectName(u"label_7")
-        self.label_7.setMinimumSize(QSize(60, 30))
-        self.label_7.setStyleSheet(u"QLabel {\n"
-"    font-size: 18px;\n"
-"    font-weight: bold;\n"
-"    color: #1a1a1a;\n"
-"    margin-bottom: 10px;\n"
-"}\n"
-"")
-        self.label_7.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
+        self.ratioLayout.addWidget(self.ratioComboBox)
 
-        self.horizontalLayout_9.addWidget(self.label_7)
 
-        self.horizontalSpacer_7 = QSpacerItem(1, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+        self.setupLayout.addLayout(self.ratioLayout)
 
-        self.horizontalLayout_9.addItem(self.horizontalSpacer_7)
 
-        self.verticalLayout_4 = QVBoxLayout()
-        self.verticalLayout_4.setObjectName(u"verticalLayout_4")
-        self.lineEditC = QLineEdit(self.frame_4)
-        self.lineEditC.setObjectName(u"lineEditC")
-        self.lineEditC.setMinimumSize(QSize(40, 25))
+        self.leftColumnLayout.addWidget(self.setupFrame)
 
-        self.verticalLayout_4.addWidget(self.lineEditC)
+        self.progressFrame = QFrame(self.centralwidget)
+        self.progressFrame.setObjectName(u"progressFrame")
+        self.progressFrame.setFrameShape(QFrame.Shape.StyledPanel)
+        self.progressLayout = QVBoxLayout(self.progressFrame)
+        self.progressLayout.setSpacing(14)
+        self.progressLayout.setObjectName(u"progressLayout")
+        self.progressLayout.setContentsMargins(18, 16, 18, 16)
+        self.sectionLabel = QLabel(self.progressFrame)
+        self.sectionLabel.setObjectName(u"sectionLabel")
 
-        self.comboBoxC = QComboBox(self.frame_4)
-        self.comboBoxC.setObjectName(u"comboBoxC")
-        self.comboBoxC.setMinimumSize(QSize(40, 25))
+        self.progressLayout.addWidget(self.sectionLabel)
 
-        self.verticalLayout_4.addWidget(self.comboBoxC)
+        self.sourceLabelLayout = QHBoxLayout()
+        self.sourceLabelLayout.setObjectName(u"sourceLabelLayout")
+        self.sourceLabel = QLabel(self.progressFrame)
+        self.sourceLabel.setObjectName(u"sourceLabel")
 
+        self.sourceLabelLayout.addWidget(self.sourceLabel)
 
-        self.horizontalLayout_9.addLayout(self.verticalLayout_4)
+        self.sourceSpacer = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
+        self.sourceLabelLayout.addItem(self.sourceSpacer)
 
-        self.horizontalLayout_11.addWidget(self.frame_4)
+        self.sourceCountLabel = QLabel(self.progressFrame)
+        self.sourceCountLabel.setObjectName(u"sourceCountLabel")
 
-        self.frame_5 = QFrame(self.centralwidget)
-        self.frame_5.setObjectName(u"frame_5")
-        self.frame_5.setFrameShape(QFrame.Shape.StyledPanel)
-        self.frame_5.setFrameShadow(QFrame.Shadow.Raised)
-        self.horizontalLayout_10 = QHBoxLayout(self.frame_5)
-        self.horizontalLayout_10.setObjectName(u"horizontalLayout_10")
-        self.label_8 = QLabel(self.frame_5)
-        self.label_8.setObjectName(u"label_8")
-        self.label_8.setMinimumSize(QSize(60, 30))
-        self.label_8.setStyleSheet(u"QLabel {\n"
-"    font-size: 18px;\n"
-"    font-weight: bold;\n"
-"    color: #1a1a1a;\n"
-"    margin-bottom: 10px;\n"
-"}\n"
-"")
-        self.label_8.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
+        self.sourceLabelLayout.addWidget(self.sourceCountLabel)
 
-        self.horizontalLayout_10.addWidget(self.label_8)
 
-        self.horizontalSpacer_8 = QSpacerItem(1, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+        self.progressLayout.addLayout(self.sourceLabelLayout)
 
-        self.horizontalLayout_10.addItem(self.horizontalSpacer_8)
+        self.sourceProgressBar = QProgressBar(self.progressFrame)
+        self.sourceProgressBar.setObjectName(u"sourceProgressBar")
+        self.sourceProgressBar.setMaximum(45)
+        self.sourceProgressBar.setValue(0)
+        self.sourceProgressBar.setTextVisible(False)
 
-        self.verticalLayout_5 = QVBoxLayout()
-        self.verticalLayout_5.setObjectName(u"verticalLayout_5")
-        self.lineEditD = QLineEdit(self.frame_5)
-        self.lineEditD.setObjectName(u"lineEditD")
-        self.lineEditD.setMinimumSize(QSize(40, 25))
+        self.progressLayout.addWidget(self.sourceProgressBar)
 
-        self.verticalLayout_5.addWidget(self.lineEditD)
+        self.destinationLabelLayout = QHBoxLayout()
+        self.destinationLabelLayout.setObjectName(u"destinationLabelLayout")
+        self.destinationLabel = QLabel(self.progressFrame)
+        self.destinationLabel.setObjectName(u"destinationLabel")
 
-        self.comboBoxD = QComboBox(self.frame_5)
-        self.comboBoxD.setObjectName(u"comboBoxD")
-        self.comboBoxD.setMinimumSize(QSize(40, 25))
+        self.destinationLabelLayout.addWidget(self.destinationLabel)
 
-        self.verticalLayout_5.addWidget(self.comboBoxD)
+        self.destinationSpacer = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
+        self.destinationLabelLayout.addItem(self.destinationSpacer)
 
-        self.horizontalLayout_10.addLayout(self.verticalLayout_5)
+        self.destinationCountLabel = QLabel(self.progressFrame)
+        self.destinationCountLabel.setObjectName(u"destinationCountLabel")
 
+        self.destinationLabelLayout.addWidget(self.destinationCountLabel)
 
-        self.horizontalLayout_11.addWidget(self.frame_5)
 
+        self.progressLayout.addLayout(self.destinationLabelLayout)
 
-        self.verticalLayout_6.addLayout(self.horizontalLayout_11)
+        self.destinationProgressBar = QProgressBar(self.progressFrame)
+        self.destinationProgressBar.setObjectName(u"destinationProgressBar")
+        self.destinationProgressBar.setMaximum(30)
+        self.destinationProgressBar.setValue(0)
+        self.destinationProgressBar.setTextVisible(False)
 
-        self.verticalSpacer = QSpacerItem(17, 10, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Minimum)
+        self.progressLayout.addWidget(self.destinationProgressBar)
 
-        self.verticalLayout_6.addItem(self.verticalSpacer)
 
-        self.horizontalLayout_4 = QHBoxLayout()
-        self.horizontalLayout_4.setObjectName(u"horizontalLayout_4")
-        self.horizontalSpacer_6 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+        self.leftColumnLayout.addWidget(self.progressFrame)
 
-        self.horizontalLayout_4.addItem(self.horizontalSpacer_6)
+        self.poseFrame = QFrame(self.centralwidget)
+        self.poseFrame.setObjectName(u"poseFrame")
+        self.poseFrame.setFrameShape(QFrame.Shape.StyledPanel)
+        self.poseLayout = QVBoxLayout(self.poseFrame)
+        self.poseLayout.setObjectName(u"poseLayout")
+        self.poseLayout.setContentsMargins(18, 14, 18, 14)
+        self.poseValueLabel = QLabel(self.poseFrame)
+        self.poseValueLabel.setObjectName(u"poseValueLabel")
 
-        self.horizontalLayout_2 = QHBoxLayout()
-        self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
-        self.manualButton = QPushButton(self.centralwidget)
-        self.manualButton.setObjectName(u"manualButton")
-        self.manualButton.setMinimumSize(QSize(100, 40))
-        self.manualButton.setMaximumSize(QSize(100, 40))
+        self.poseLayout.addWidget(self.poseValueLabel)
 
-        self.horizontalLayout_2.addWidget(self.manualButton)
 
-        self.calibrateButton = QPushButton(self.centralwidget)
+        self.leftColumnLayout.addWidget(self.poseFrame)
+
+
+        self.contentLayout.addLayout(self.leftColumnLayout)
+
+        self.metricsFrame = QFrame(self.centralwidget)
+        self.metricsFrame.setObjectName(u"metricsFrame")
+        self.metricsFrame.setMinimumSize(QSize(260, 0))
+        self.metricsFrame.setFrameShape(QFrame.Shape.StyledPanel)
+        self.metricsLayout = QVBoxLayout(self.metricsFrame)
+        self.metricsLayout.setSpacing(18)
+        self.metricsLayout.setObjectName(u"metricsLayout")
+        self.metricsLayout.setContentsMargins(18, 16, 18, 16)
+        self.metricsTitleLabel = QLabel(self.metricsFrame)
+        self.metricsTitleLabel.setObjectName(u"metricsTitleLabel")
+
+        self.metricsLayout.addWidget(self.metricsTitleLabel)
+
+        self.detectedLayout = QVBoxLayout()
+        self.detectedLayout.setSpacing(3)
+        self.detectedLayout.setObjectName(u"detectedLayout")
+        self.detectedValueLabel = QLabel(self.metricsFrame)
+        self.detectedValueLabel.setObjectName(u"detectedValueLabel")
+
+        self.detectedLayout.addWidget(self.detectedValueLabel)
+
+        self.detectedLabel = QLabel(self.metricsFrame)
+        self.detectedLabel.setObjectName(u"detectedLabel")
+
+        self.detectedLayout.addWidget(self.detectedLabel)
+
+
+        self.metricsLayout.addLayout(self.detectedLayout)
+
+        self.transferredLayout = QVBoxLayout()
+        self.transferredLayout.setSpacing(3)
+        self.transferredLayout.setObjectName(u"transferredLayout")
+        self.transferredValueLabel = QLabel(self.metricsFrame)
+        self.transferredValueLabel.setObjectName(u"transferredValueLabel")
+
+        self.transferredLayout.addWidget(self.transferredValueLabel)
+
+        self.transferredLabel = QLabel(self.metricsFrame)
+        self.transferredLabel.setObjectName(u"transferredLabel")
+
+        self.transferredLayout.addWidget(self.transferredLabel)
+
+
+        self.metricsLayout.addLayout(self.transferredLayout)
+
+        self.nextBatchLayout = QVBoxLayout()
+        self.nextBatchLayout.setSpacing(3)
+        self.nextBatchLayout.setObjectName(u"nextBatchLayout")
+        self.nextBatchValueLabel = QLabel(self.metricsFrame)
+        self.nextBatchValueLabel.setObjectName(u"nextBatchValueLabel")
+
+        self.nextBatchLayout.addWidget(self.nextBatchValueLabel)
+
+        self.nextBatchLabel = QLabel(self.metricsFrame)
+        self.nextBatchLabel.setObjectName(u"nextBatchLabel")
+
+        self.nextBatchLayout.addWidget(self.nextBatchLabel)
+
+
+        self.metricsLayout.addLayout(self.nextBatchLayout)
+
+        self.metricsSpacer = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
+
+        self.metricsLayout.addItem(self.metricsSpacer)
+
+        self.calibrateButton = QPushButton(self.metricsFrame)
         self.calibrateButton.setObjectName(u"calibrateButton")
-        self.calibrateButton.setMinimumSize(QSize(100, 40))
-        self.calibrateButton.setMaximumSize(QSize(100, 40))
+        self.calibrateButton.setMinimumSize(QSize(0, 42))
 
-        self.horizontalLayout_2.addWidget(self.calibrateButton)
+        self.metricsLayout.addWidget(self.calibrateButton)
 
-        self.runButton = QPushButton(self.centralwidget)
+        self.runButton = QPushButton(self.metricsFrame)
         self.runButton.setObjectName(u"runButton")
-        self.runButton.setMinimumSize(QSize(100, 40))
-        self.runButton.setMaximumSize(QSize(100, 40))
+        self.runButton.setMinimumSize(QSize(0, 46))
 
-        self.horizontalLayout_2.addWidget(self.runButton)
-
-
-        self.horizontalLayout_4.addLayout(self.horizontalLayout_2)
-
-        self.horizontalSpacer_5 = QSpacerItem(20, 20, QSizePolicy.Policy.Maximum, QSizePolicy.Policy.Minimum)
-
-        self.horizontalLayout_4.addItem(self.horizontalSpacer_5)
+        self.metricsLayout.addWidget(self.runButton)
 
 
-        self.verticalLayout_6.addLayout(self.horizontalLayout_4)
+        self.contentLayout.addWidget(self.metricsFrame)
+
+
+        self.mainLayout.addLayout(self.contentLayout)
 
         MainWindow.setCentralWidget(self.centralwidget)
         self.statusbar = QStatusBar(MainWindow)
@@ -465,28 +428,30 @@ class Ui_MainWindow(object):
     # setupUi
 
     def retranslateUi(self, MainWindow):
-        MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"MainWindow", None))
-        self.headerLabel.setText(QCoreApplication.translate("MainWindow", u"STATUS", None))
-        self.topStatusLabel.setText(QCoreApplication.translate("MainWindow", u"Calibrated", None))
-        self.bottomStatusLabel.setText(QCoreApplication.translate("MainWindow", u"Running", None))
-        self.dishLabelA.setText(QCoreApplication.translate("MainWindow", u"Dish A", None))
-        self.dishLabelB.setText(QCoreApplication.translate("MainWindow", u"Dish B", None))
-        self.dishLabelC.setText(QCoreApplication.translate("MainWindow", u"Dish C", None))
-        self.dishLabelD.setText(QCoreApplication.translate("MainWindow", u"Dish D", None))
-        self.label_5.setText(QCoreApplication.translate("MainWindow", u"Dish A", None))
-        self.lineEditA.setPlaceholderText(QCoreApplication.translate("MainWindow", u"25", None))
-        self.comboBoxA.setPlaceholderText(QCoreApplication.translate("MainWindow", u"Type", None))
-        self.label_6.setText(QCoreApplication.translate("MainWindow", u"Dish B", None))
-        self.lineEditB.setPlaceholderText(QCoreApplication.translate("MainWindow", u"25", None))
-        self.comboBoxB.setPlaceholderText(QCoreApplication.translate("MainWindow", u"Type", None))
-        self.label_7.setText(QCoreApplication.translate("MainWindow", u"Dish C", None))
-        self.lineEditC.setPlaceholderText(QCoreApplication.translate("MainWindow", u"25", None))
-        self.comboBoxC.setPlaceholderText(QCoreApplication.translate("MainWindow", u"Type", None))
-        self.label_8.setText(QCoreApplication.translate("MainWindow", u"Dish D", None))
-        self.lineEditD.setPlaceholderText(QCoreApplication.translate("MainWindow", u"25", None))
-        self.comboBoxD.setPlaceholderText(QCoreApplication.translate("MainWindow", u"Type", None))
-        self.manualButton.setText(QCoreApplication.translate("MainWindow", u"Manual", None))
+        MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"Pantograph Full Cycle", None))
+        self.titleLabel.setText(QCoreApplication.translate("MainWindow", u"Full Cycle Transfer", None))
+        self.detailLabel.setText(QCoreApplication.translate("MainWindow", u"Idle", None))
+        self.readinessLabel.setText(QCoreApplication.translate("MainWindow", u"Not Ready", None))
+        self.stateLabel.setText(QCoreApplication.translate("MainWindow", u"Idle", None))
+        self.cycleTitleLabel.setText(QCoreApplication.translate("MainWindow", u"Cycle Setup", None))
+        self.ratioLabel.setText(QCoreApplication.translate("MainWindow", u"Incoming to outgoing", None))
+        self.ratioComboBox.setItemText(0, QCoreApplication.translate("MainWindow", u"45:30", None))
+        self.ratioComboBox.setItemText(1, QCoreApplication.translate("MainWindow", u"30:20", None))
+
+        self.sectionLabel.setText(QCoreApplication.translate("MainWindow", u"Dish Progress", None))
+        self.sourceLabel.setText(QCoreApplication.translate("MainWindow", u"Source used", None))
+        self.sourceCountLabel.setText(QCoreApplication.translate("MainWindow", u"0 / 45", None))
+        self.destinationLabel.setText(QCoreApplication.translate("MainWindow", u"Destination filled", None))
+        self.destinationCountLabel.setText(QCoreApplication.translate("MainWindow", u"0 / 30", None))
+        self.poseValueLabel.setText(QCoreApplication.translate("MainWindow", u"Pose x=0.000 m, y=0.000 m, z=0.000 m", None))
+        self.metricsTitleLabel.setText(QCoreApplication.translate("MainWindow", u"Run Metrics", None))
+        self.detectedValueLabel.setText(QCoreApplication.translate("MainWindow", u"0", None))
+        self.detectedLabel.setText(QCoreApplication.translate("MainWindow", u"Detected clusters", None))
+        self.transferredValueLabel.setText(QCoreApplication.translate("MainWindow", u"0", None))
+        self.transferredLabel.setText(QCoreApplication.translate("MainWindow", u"Transferred this run", None))
+        self.nextBatchValueLabel.setText(QCoreApplication.translate("MainWindow", u"30", None))
+        self.nextBatchLabel.setText(QCoreApplication.translate("MainWindow", u"Next planned batch", None))
         self.calibrateButton.setText(QCoreApplication.translate("MainWindow", u"Calibrate", None))
-        self.runButton.setText(QCoreApplication.translate("MainWindow", u"Run", None))
+        self.runButton.setText(QCoreApplication.translate("MainWindow", u"Run Full Cycle", None))
     # retranslateUi
 
