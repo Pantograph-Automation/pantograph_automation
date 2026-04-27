@@ -13,65 +13,6 @@ if str(SRC_ROOT) not in sys.path:
 from pantograph_control.macros import ControllerStatus, Controller, Pose
 from pantograph_ui.ui_calibrate_window import Ui_CalibrateWindow
 from pantograph_ui.ui_main_window import Ui_MainWindow
-from pantograph_ui.ui_manual_window import Ui_ManualWindow
-
-
-class ManualWindow(QWidget, Ui_ManualWindow):
-    def __init__(self, controller: Controller):
-        super().__init__()
-        self.controller = controller
-        self.setupUi(self)
-        self.setWindowTitle("Manual Control")
-        self.horizontalSlider.setValue(473)
-        self._update_step_label()
-        self._set_controls_enabled(False)
-
-        self.horizontalSlider.valueChanged.connect(self._update_step_label)
-        self.posXButton.clicked.connect(lambda: self._jog(dx=self._step_size()))
-        self.negXButton.clicked.connect(lambda: self._jog(dx=-self._step_size()))
-        self.posYButton.clicked.connect(lambda: self._jog(dy=self._step_size()))
-        self.negYButton.clicked.connect(lambda: self._jog(dy=-self._step_size()))
-        self.posZButton.clicked.connect(lambda: self._jog(dz=self._step_size()))
-        self.negZButton.clicked.connect(lambda: self._jog(dz=-self._step_size()))
-
-        self.controller.pose_changed.connect(self._update_pose)
-        self.controller.status_changed.connect(self._update_status)
-
-    def _step_size(self) -> float:
-        return self.controller.slider_value_to_step(
-            self.horizontalSlider.value(),
-            self.horizontalSlider.maximum(),
-        )
-
-    def _update_step_label(self) -> None:
-        self.yLabel_2.setText(f"{self._step_size():.3f} m")
-
-    def _set_controls_enabled(self, enabled: bool) -> None:
-        for widget in (
-            self.posXButton,
-            self.negXButton,
-            self.posYButton,
-            self.negYButton,
-            self.posZButton,
-            self.negZButton,
-            self.horizontalSlider,
-        ):
-            widget.setEnabled(enabled)
-
-    def _jog(self, dx: float = 0.0, dy: float = 0.0, dz: float = 0.0) -> None:
-        self.controller.manual_jog_async(dx=dx, dy=dy, dz=dz)
-
-    def _update_pose(self, pose: Pose) -> None:
-        self.xLabel.setText(f"{pose.point[0]:.3f} m")
-        self.yLabel.setText(f"{pose.point[1]:.3f} m")
-        self.zLabel.setText(f"{pose.point[2]:.3f} m")
-        self.j1Label.setText(f"{math.degrees(pose.theta1):.1f} deg")
-        self.j2Label.setText(f"{math.degrees(pose.theta5):.1f} deg")
-
-    def _update_status(self, status: ControllerStatus) -> None:
-        enabled = status.calibrated and not status.busy
-        self._set_controls_enabled(enabled)
-
 
 class CalibrateWindow(QWidget, Ui_CalibrateWindow):
     def __init__(self, controller: Controller):
@@ -121,12 +62,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.setupUi(self)
         self.setWindowTitle("Pantograph Prototype")
         self.calibrate_window: CalibrateWindow | None = None
-        self.manual_window: ManualWindow | None = None
 
         self._configure_v1_inputs()
 
         self.calibrateButton.clicked.connect(self.launch_calibrate)
-        self.manualButton.clicked.connect(self.launch_manual)
         self.runButton.clicked.connect(self._start_run)
 
         self.controller.status_changed.connect(self._update_status)
@@ -163,13 +102,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.calibrate_window.show()
         self.calibrate_window.raise_()
         self.calibrate_window.activateWindow()
-
-    def launch_manual(self) -> None:
-        if self.manual_window is None:
-            self.manual_window = ManualWindow(self.controller)
-        self.manual_window.show()
-        self.manual_window.raise_()
-        self.manual_window.activateWindow()
 
     def _start_run(self) -> None:
         self.controller.run_transfer_async()

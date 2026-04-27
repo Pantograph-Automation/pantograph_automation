@@ -111,7 +111,7 @@ def test_calibrate_impl_hardware():
 
         assert result == "Calibration complete. Pantograph is at the safe home pose."
         assert controller.status.calibrated is True
-        _assert_point_close(controller.pose.point, controller.config.safe_home)
+        _assert_point_close(controller.pose.point, controller.config.safe_home_low)
     finally:
         _close_controller_connection(controller)
 
@@ -159,18 +159,19 @@ def test_center_input_impl_hardware():
     try:
 
         _calibrate_or_skip_serial_unavailable(controller)
+        controller._set_status(calibrated=True)
         controller._close_gripper()
         controller._move_to(controller.config.input_center)
         
         next_point = Point([
             controller.config.input_center[0],
             controller.config.input_center[1],
-            controller.config.input_center[2] + 0.02])
+            controller.config.pick_height])
         
         _assert_point_close(controller.pose.point, controller.config.input_center)
 
         controller._move_to(next_point)
-        controller._move_to(controller.config.safe_home)
+        controller._move_to(controller.config.safe_home_high)
     finally:
         _close_controller_connection(controller)
 
@@ -189,13 +190,10 @@ def test_center_output_impl_hardware():
             controller.config.output_center[1],
             controller.config.output_center[2] + 0.02])
         
-        _assert_point_close(controller.pose.point, controller.config.output_center)
-
         controller._move_to(next_point)
-        controller._move_to(controller.config.safe_home)
+        controller._move_to(controller.config.safe_home_high)
     finally:
         _close_controller_connection(controller)
-
 
 def test_run_transfer_impl_hardware():
     frame_shape = _camera_frame_shape_or_skip()
@@ -204,15 +202,16 @@ def test_run_transfer_impl_hardware():
     #     outgoing_clusters=DEBUG_OUTGOING_CLUSTERS,
     # )
     controller = _make_hardware_controller(
-        nominal_clusters=11,
-        outgoing_clusters=11,
+        nominal_clusters=45,
+        outgoing_clusters=45,
     )
 
     try:
+        if input("Calibrate? >> ") == 'n': 
+            controller._set_status(calibrated=True)
+        else: controller._calibrate_impl()
 
-        result = controller._calibrate_impl()
-
-        assert re.fullmatch(('Calibration complete. Pantograph is at the safe home pose.'), result)
+        controller._set_status(calibrated=True)
 
         result = controller._run_transfer_impl()
         

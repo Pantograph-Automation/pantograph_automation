@@ -66,16 +66,19 @@ class TransferConfig:
     baudrate: int = 115200
     finished_timeout: float = 15.0
     calibrate_timeout: float = 30.0
-    safe_home: Point = (-0.07, 0.20, 0.22)
-    lid_center: Point = (0.0, 0.15, 0.05)
-    output_center: Point = (-0.068, 0.2115, 0.023)
-    input_center: Point = (-0.158, 0.157, 0.0221)
-    fisheye_scale: float = 1.01
-    a5_axis_scale: float = 1.065
+    safe_home_high: Point = (-0.07, 0.20, 0.23)
+    safe_home_low: Point = (-0.07, 0.20, 0.10)
+    lid_holder: Point = (0.004, 0.080, 0.0)
+    lid_place: Point = (-0.116, 0.104, 0.0151)
+    output_center: Point = (-0.069, 0.210, 0.023)
+    input_center: Point = (-0.159, 0.1565, 0.022)
+    fisheye_scale: float = 1.04
+    fisheye_threshold: float = 0.022
+    a5_axis_scale: float = 1.03
     axis_scale_threshold: float = 0.027
     dish_radius_m: float = 0.038
-    pick_height: float = 0.0221
-    place_height: float = 0.024
+    pick_height: float = 0.0220
+    place_height: float = 0.0235
     lift_height: float = 0.038
     nominal_clusters: int = 45
     outgoing_clusters: int = 30
@@ -119,9 +122,9 @@ class Controller(QObject):
         self.status = ControllerStatus(
             destination_positions=self._build_destination_pattern()
         )
-        home_theta1, home_theta5 = self._compute_angles(self.config.safe_home)
+        home_theta1, home_theta5 = self._compute_angles(self.config.safe_home_low)
         self.pose = Pose(
-            point=self.config.safe_home,
+            point=self.config.safe_home_low,
             theta1=home_theta1,
             theta5=home_theta5,
         )
@@ -252,7 +255,7 @@ class Controller(QObject):
             lambda: self.connection.send_activate(timeout=self.config.calibrate_timeout),
             "Failed to activate pantograph.",
         )
-        self._move_to(self.config.safe_home)
+        self._move_to(self.config.safe_home_low)
         self._set_status(calibrated=True)
         return "Calibration complete. Pantograph is at the safe home pose."
 
@@ -281,14 +284,27 @@ class Controller(QObject):
         destination_start = self._destination_offset
         source_stop = source_start + planned_count
 
+        output_midpoint = Point([
+            self.config.output_center[0],
+            self.config.output_center[1],
+            self.config.output_center[2] + 0.05])
+
+        self._pick_lid_from_holder()
+        self._move_to(output_midpoint)
+        self._place_lid_on_input()
+
+        self._move_to(self.config.safe_home_low)
+        
         self._set_status(transferred_count=0)
         self._capture_clusters_impl()
 
+        self._pick_lid_from_input()
+        self._move_to(output_midpoint)
+        self._place_lid_on_holder()
+        self._move_to(output_midpoint)
+
         clusters_by_source_slot = self._match_clusters_to_source_slots(self._clusters)
         destinations = self.status.destination_positions
-
-        self._move_to(point=self.config.safe_home)
-        self._open_gripper()
 
         transferred_count = 0
         for batch_index, source_slot_index in enumerate(range(source_start, source_stop), start=1):
@@ -311,7 +327,7 @@ class Controller(QObject):
             transferred_count += 1
             self._set_status(transferred_count=transferred_count)
 
-        self._move_to(self.config.safe_home)
+        self._move_to(self.config.safe_home_low)
         self._send_command(lambda: self.connection.send_gripper("OPEN"), "Failed to open gripper after transfer run.")
         next_step = self._advance_transfer_cycle(planned_count)
         return (
@@ -321,10 +337,12 @@ class Controller(QObject):
     
     def _close_gripper(self) -> str:
         self._send_command(lambda: self.connection.send_gripper("CLOSE"), "Failed to open gripper after transfer run.")
+        time.sleep(0.2)
         return "Closed gripper."
     
     def _open_gripper(self) -> str:
         self._send_command(lambda: self.connection.send_gripper("OPEN"), "Failed to open gripper after transfer run.")
+        time.sleep(0.2)
         return "Opened gripper."
     
 
@@ -344,7 +362,6 @@ class Controller(QObject):
         self._open_gripper()
         self._move_to(cluster.point)
         self._close_gripper()
-        time.sleep(0.2)
         self._move_to(lift_point)
 
     def _place_cluster(self, place_destination: Point) -> None:
@@ -352,8 +369,54 @@ class Controller(QObject):
         self._move_to(lift_point)
         self._move_to(place_destination)
         self._open_gripper()
-        time.sleep(0.2)
         self._move_to(lift_point)
+
+    def _pick_lid_from_holder(self):
+        self._open_gripper()
+        lift_point = Point([
+            self.config.lid_holder[0],
+            self.config.lid_holder[1],
+            self.config.lid_holder[2] + 0.030])
+        self._move_to(lift_point)
+        self._move_to(self.config.lid_holder)
+        self._close_gripper()
+        self._move_to(lift_point)
+
+    def _pick_lid_from_input(self):
+        lift_point = Point([
+            self.config.lid_place[0],
+            self.config.lid_place[1],
+            self.config.lid_place[2] + 0.030])
+        self._move_to(lift_point)
+        self._move_to(self.config.lid_place)
+        self._close_gripper()
+        self._move_to(lift_point)
+    
+    def _place_lid_on_input(self):
+        lift_point = Point([
+            self.config.lid_place[0],
+            self.config.lid_place[1],
+            self.config.lid_place[2] + 0.030])
+        self._move_to(lift_point)
+        self._move_to(self.config.lid_place)
+        self._open_gripper()
+        self._move_to(lift_point)
+
+    def _place_lid_on_holder(self):
+        lift_point = Point([
+            self.config.lid_holder[0],
+            self.config.lid_holder[1],
+            self.config.lid_holder[2] + 0.030])
+        self._move_to(lift_point)
+        drop_point = Point([
+            self.config.lid_holder[0],
+            self.config.lid_holder[1] + 0.001,
+            self.config.lid_holder[2] + 0.010
+        ])
+        self._move_to(drop_point)
+        self._open_gripper()
+        self._move_to(lift_point)
+        
 
     def _move_to(self, point: Point) -> None:
         self._ensure_connection()
@@ -512,8 +575,11 @@ class Controller(QObject):
         for px, py in centroids:
             offset_x = (px - mask_center_x) / radius_px
             offset_y = (py - mask_center_y) / radius_px
-            x_m = center_x_m + offset_x * radius_m * self.config.fisheye_scale
-            y_m = center_y_m + offset_y * radius_m * self.config.fisheye_scale
+            fi_scale = self.config.fisheye_scale
+            if radius_m <= self.config.fisheye_threshold:
+                fi_scale = 1.0
+            x_m = center_x_m + offset_x * radius_m * fi_scale
+            y_m = center_y_m + offset_y * radius_m * fi_scale
             if radius_m >= self.config.axis_scale_threshold:
                 x_m, y_m = self._scale_point_along_a5_axis(x_m, y_m)
             if self._point_inside_dish(x_m, y_m, self.config.input_center, radius_m):
