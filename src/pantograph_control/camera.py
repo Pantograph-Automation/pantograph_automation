@@ -14,7 +14,6 @@ except ImportError:  # pragma: no cover - hardware dependency
 _camera_lock = threading.Lock()
 _camera = None
 
-# --- TUNABLE PARAMETERS ---
 MASK_RADIUS_RATIO = 0.474
 MASK_Y_OFFSET = -72
 MASK_X_OFFSET = -65
