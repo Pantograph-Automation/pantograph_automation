@@ -35,10 +35,10 @@ from .serial_interface import SerialConnection, SerialReturn
 Point = tuple[float, float, float]
 
 DISH_PATTERN_RING_SPECS = (
-    (0.18, 3),
-    (0.45, 10),
-    (0.70, 15),
-    (0.88, 17),
+    (0.23, 3),
+    (0.54, 11),
+    (0.85, 16),
+    (0.93, 17),
 )
 A5_AXIS_CENTER_XY = (-0.055, 0.0)
 
