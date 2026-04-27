@@ -6,14 +6,14 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>860</width>
-    <height>560</height>
+    <width>800</width>
+    <height>480</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
-    <width>780</width>
-    <height>520</height>
+    <width>720</width>
+    <height>430</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -24,7 +24,7 @@
     background-color: #f6f8fb;
     color: #1f2937;
     font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
-    font-size: 14px;
+    font-size: 13px;
 }
 
 QFrame#headerFrame,
@@ -44,27 +44,27 @@ QLabel {
 
 QLabel#titleLabel {
     color: #0f172a;
-    font-size: 28px;
+    font-size: 22px;
     font-weight: 700;
 }
 
 QLabel#sectionLabel,
 QLabel#cycleTitleLabel {
     color: #111827;
-    font-size: 17px;
+    font-size: 15px;
     font-weight: 700;
 }
 
 QLabel#readinessLabel {
     color: #ffffff;
-    border-radius: 16px;
-    padding: 6px 14px;
+    border-radius: 14px;
+    padding: 5px 10px;
     font-weight: 700;
 }
 
 QLabel#stateLabel {
     color: #334155;
-    font-size: 16px;
+    font-size: 14px;
     font-weight: 700;
 }
 
@@ -78,7 +78,7 @@ QLabel#detectedValueLabel,
 QLabel#transferredValueLabel,
 QLabel#nextBatchValueLabel {
     color: #0f172a;
-    font-size: 24px;
+    font-size: 21px;
     font-weight: 700;
 }
 
@@ -86,8 +86,8 @@ QComboBox {
     background-color: #ffffff;
     border: 1px solid #cbd5e1;
     border-radius: 6px;
-    padding: 8px 12px;
-    min-height: 22px;
+    padding: 6px 10px;
+    min-height: 20px;
 }
 
 QComboBox:disabled {
@@ -99,7 +99,7 @@ QProgressBar {
     background-color: #e8edf4;
     border: none;
     border-radius: 6px;
-    height: 12px;
+    height: 10px;
     text-align: center;
     color: transparent;
 }
@@ -112,7 +112,7 @@ QProgressBar::chunk {
 QPushButton {
     border: none;
     border-radius: 6px;
-    padding: 11px 18px;
+    padding: 8px 14px;
     font-weight: 700;
 }
 
@@ -144,19 +144,19 @@ QPushButton:disabled {
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="mainLayout">
     <property name="spacing">
-     <number>16</number>
+     <number>10</number>
     </property>
     <property name="leftMargin">
-     <number>24</number>
+     <number>12</number>
     </property>
     <property name="topMargin">
-     <number>24</number>
+     <number>10</number>
     </property>
     <property name="rightMargin">
-     <number>24</number>
+     <number>12</number>
     </property>
     <property name="bottomMargin">
-     <number>18</number>
+     <number>8</number>
     </property>
     <item>
      <widget class="QFrame" name="headerFrame">
@@ -165,24 +165,24 @@ QPushButton:disabled {
       </property>
       <layout class="QHBoxLayout" name="headerLayout">
        <property name="spacing">
-        <number>18</number>
+        <number>12</number>
        </property>
        <property name="leftMargin">
-        <number>18</number>
+        <number>12</number>
        </property>
        <property name="topMargin">
-        <number>16</number>
+        <number>9</number>
        </property>
        <property name="rightMargin">
-        <number>18</number>
+        <number>12</number>
        </property>
        <property name="bottomMargin">
-        <number>16</number>
+        <number>9</number>
        </property>
        <item>
         <layout class="QVBoxLayout" name="titleLayout">
          <property name="spacing">
-          <number>4</number>
+          <number>2</number>
          </property>
          <item>
           <widget class="QLabel" name="titleLabel">
@@ -219,14 +219,14 @@ QPushButton:disabled {
        <item>
         <layout class="QVBoxLayout" name="statusLayout">
          <property name="spacing">
-          <number>8</number>
+          <number>4</number>
          </property>
          <item>
           <widget class="QLabel" name="readinessLabel">
            <property name="minimumSize">
             <size>
-             <width>126</width>
-             <height>34</height>
+             <width>106</width>
+             <height>30</height>
             </size>
            </property>
            <property name="text">
@@ -255,12 +255,12 @@ QPushButton:disabled {
     <item>
      <layout class="QHBoxLayout" name="contentLayout">
       <property name="spacing">
-       <number>16</number>
+       <number>10</number>
       </property>
       <item>
        <layout class="QVBoxLayout" name="leftColumnLayout">
         <property name="spacing">
-         <number>16</number>
+         <number>10</number>
         </property>
         <item>
          <widget class="QFrame" name="setupFrame">
@@ -269,19 +269,19 @@ QPushButton:disabled {
           </property>
           <layout class="QVBoxLayout" name="setupLayout">
            <property name="spacing">
-            <number>12</number>
+            <number>8</number>
            </property>
            <property name="leftMargin">
-            <number>18</number>
+            <number>12</number>
            </property>
            <property name="topMargin">
-            <number>16</number>
+            <number>9</number>
            </property>
            <property name="rightMargin">
-            <number>18</number>
+            <number>12</number>
            </property>
            <property name="bottomMargin">
-            <number>16</number>
+            <number>9</number>
            </property>
            <item>
             <widget class="QLabel" name="cycleTitleLabel">
@@ -293,7 +293,7 @@ QPushButton:disabled {
            <item>
             <layout class="QHBoxLayout" name="ratioLayout">
              <property name="spacing">
-              <number>12</number>
+              <number>8</number>
              </property>
              <item>
               <widget class="QLabel" name="ratioLabel">
@@ -319,7 +319,7 @@ QPushButton:disabled {
               <widget class="QComboBox" name="ratioComboBox">
                <property name="minimumSize">
                 <size>
-                 <width>128</width>
+                 <width>112</width>
                  <height>38</height>
                 </size>
                </property>
@@ -347,19 +347,19 @@ QPushButton:disabled {
           </property>
           <layout class="QVBoxLayout" name="progressLayout">
            <property name="spacing">
-            <number>14</number>
+            <number>8</number>
            </property>
            <property name="leftMargin">
-            <number>18</number>
+            <number>12</number>
            </property>
            <property name="topMargin">
-            <number>16</number>
+            <number>9</number>
            </property>
            <property name="rightMargin">
-            <number>18</number>
+            <number>12</number>
            </property>
            <property name="bottomMargin">
-            <number>16</number>
+            <number>9</number>
            </property>
            <item>
             <widget class="QLabel" name="sectionLabel">
@@ -466,16 +466,16 @@ QPushButton:disabled {
           </property>
           <layout class="QVBoxLayout" name="poseLayout">
            <property name="leftMargin">
-            <number>18</number>
+            <number>12</number>
            </property>
            <property name="topMargin">
-            <number>14</number>
+            <number>8</number>
            </property>
            <property name="rightMargin">
-            <number>18</number>
+            <number>12</number>
            </property>
            <property name="bottomMargin">
-            <number>14</number>
+            <number>8</number>
            </property>
            <item>
             <widget class="QLabel" name="poseValueLabel">
@@ -493,7 +493,7 @@ QPushButton:disabled {
        <widget class="QFrame" name="metricsFrame">
         <property name="minimumSize">
          <size>
-          <width>260</width>
+          <width>218</width>
           <height>0</height>
          </size>
         </property>
@@ -502,19 +502,19 @@ QPushButton:disabled {
         </property>
         <layout class="QVBoxLayout" name="metricsLayout">
          <property name="spacing">
-          <number>18</number>
+          <number>9</number>
          </property>
          <property name="leftMargin">
-          <number>18</number>
+          <number>12</number>
          </property>
          <property name="topMargin">
-          <number>16</number>
+          <number>9</number>
          </property>
          <property name="rightMargin">
-          <number>18</number>
+          <number>12</number>
          </property>
          <property name="bottomMargin">
-          <number>16</number>
+          <number>9</number>
          </property>
          <item>
           <widget class="QLabel" name="metricsTitleLabel">
@@ -594,7 +594,7 @@ QPushButton:disabled {
            <property name="sizeHint" stdset="0">
             <size>
              <width>20</width>
-             <height>40</height>
+             <height>12</height>
             </size>
            </property>
           </spacer>
@@ -604,7 +604,7 @@ QPushButton:disabled {
            <property name="minimumSize">
             <size>
              <width>0</width>
-             <height>42</height>
+             <height>38</height>
             </size>
            </property>
            <property name="text">
@@ -617,7 +617,7 @@ QPushButton:disabled {
            <property name="minimumSize">
             <size>
              <width>0</width>
-             <height>46</height>
+             <height>42</height>
             </size>
            </property>
            <property name="text">

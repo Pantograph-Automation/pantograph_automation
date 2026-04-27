@@ -209,9 +209,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             "QLabel {"
             f"background-color: {color};"
             "color: white;"
-            "border-radius: 16px;"
+            "border-radius: 14px;"
             "font-weight: 700;"
-            "padding: 6px 14px;"
+            "padding: 5px 10px;"
             "}"
         )
 

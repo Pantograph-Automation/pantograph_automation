@@ -23,13 +23,13 @@ class Ui_CalibrateWindow(object):
     def setupUi(self, CalibrateWindow):
         if not CalibrateWindow.objectName():
             CalibrateWindow.setObjectName(u"CalibrateWindow")
-        CalibrateWindow.resize(430, 420)
-        CalibrateWindow.setMinimumSize(QSize(400, 390))
+        CalibrateWindow.resize(400, 360)
+        CalibrateWindow.setMinimumSize(QSize(360, 330))
         CalibrateWindow.setStyleSheet(u"QWidget {\n"
 "    background-color: #f6f8fb;\n"
 "    color: #1f2937;\n"
 "    font-family: \"Segoe UI\", \"Helvetica Neue\", Arial, sans-serif;\n"
-"    font-size: 14px;\n"
+"    font-size: 13px;\n"
 "}\n"
 "\n"
 "QFrame#contentFrame {\n"
@@ -45,7 +45,7 @@ class Ui_CalibrateWindow(object):
 "\n"
 "QLabel#headerLabel {\n"
 "    color: #0f172a;\n"
-"    font-size: 24px;\n"
+"    font-size: 21px;\n"
 "    font-weight: 700;\n"
 "}\n"
 "\n"
@@ -56,7 +56,7 @@ class Ui_CalibrateWindow(object):
 "\n"
 "QCheckBox {\n"
 "    color: #334155;\n"
-"    spacing: 10px;\n"
+"    spacing: 8px;\n"
 "}\n"
 "\n"
 "QCheckBox::indicator {\n"
@@ -73,8 +73,8 @@ class Ui_CalibrateWindow(object):
 "\n"
 "QCheckBox::indicator:checked {\n"
 "    background-color: #2563eb;\n"
-"    border: 1px solid #256"
-                        "3eb;\n"
+"    border: 1px solid #2563"
+                        "eb;\n"
 "}\n"
 "\n"
 "QPushButton#calibrateButton {\n"
@@ -82,7 +82,7 @@ class Ui_CalibrateWindow(object):
 "    color: #ffffff;\n"
 "    border: none;\n"
 "    border-radius: 6px;\n"
-"    padding: 11px 18px;\n"
+"    padding: 8px 14px;\n"
 "    font-weight: 700;\n"
 "}\n"
 "\n"
@@ -96,21 +96,21 @@ class Ui_CalibrateWindow(object):
 "}")
         self.outerLayout = QVBoxLayout(CalibrateWindow)
         self.outerLayout.setObjectName(u"outerLayout")
-        self.outerLayout.setContentsMargins(20, 20, 20, 20)
+        self.outerLayout.setContentsMargins(12, 12, 12, 12)
         self.contentFrame = QFrame(CalibrateWindow)
         self.contentFrame.setObjectName(u"contentFrame")
         self.contentFrame.setFrameShape(QFrame.Shape.StyledPanel)
         self.verticalLayout_2 = QVBoxLayout(self.contentFrame)
-        self.verticalLayout_2.setSpacing(14)
+        self.verticalLayout_2.setSpacing(9)
         self.verticalLayout_2.setObjectName(u"verticalLayout_2")
-        self.verticalLayout_2.setContentsMargins(20, 18, 20, 18)
+        self.verticalLayout_2.setContentsMargins(14, 12, 14, 12)
         self.headerLabel = QLabel(self.contentFrame)
         self.headerLabel.setObjectName(u"headerLabel")
 
         self.verticalLayout_2.addWidget(self.headerLabel)
 
         self.verticalLayout = QVBoxLayout()
-        self.verticalLayout.setSpacing(10)
+        self.verticalLayout.setSpacing(7)
         self.verticalLayout.setObjectName(u"verticalLayout")
         self.label = QLabel(self.contentFrame)
         self.label.setObjectName(u"label")
@@ -120,7 +120,7 @@ class Ui_CalibrateWindow(object):
 
         self.checkBox = QCheckBox(self.contentFrame)
         self.checkBox.setObjectName(u"checkBox")
-        self.checkBox.setMinimumSize(QSize(0, 34))
+        self.checkBox.setMinimumSize(QSize(0, 32))
 
         self.verticalLayout.addWidget(self.checkBox)
 
@@ -132,7 +132,7 @@ class Ui_CalibrateWindow(object):
 
         self.checkBox2 = QCheckBox(self.contentFrame)
         self.checkBox2.setObjectName(u"checkBox2")
-        self.checkBox2.setMinimumSize(QSize(0, 34))
+        self.checkBox2.setMinimumSize(QSize(0, 32))
 
         self.verticalLayout.addWidget(self.checkBox2)
 
@@ -144,20 +144,20 @@ class Ui_CalibrateWindow(object):
 
         self.checkBox3 = QCheckBox(self.contentFrame)
         self.checkBox3.setObjectName(u"checkBox3")
-        self.checkBox3.setMinimumSize(QSize(0, 34))
+        self.checkBox3.setMinimumSize(QSize(0, 32))
 
         self.verticalLayout.addWidget(self.checkBox3)
 
 
         self.verticalLayout_2.addLayout(self.verticalLayout)
 
-        self.verticalSpacer = QSpacerItem(20, 20, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
+        self.verticalSpacer = QSpacerItem(20, 8, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
 
         self.verticalLayout_2.addItem(self.verticalSpacer)
 
         self.calibrateButton = QPushButton(self.contentFrame)
         self.calibrateButton.setObjectName(u"calibrateButton")
-        self.calibrateButton.setMinimumSize(QSize(0, 44))
+        self.calibrateButton.setMinimumSize(QSize(0, 40))
 
         self.verticalLayout_2.addWidget(self.calibrateButton)
 

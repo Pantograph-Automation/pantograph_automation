@@ -24,13 +24,13 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(860, 560)
-        MainWindow.setMinimumSize(QSize(780, 520))
+        MainWindow.resize(800, 480)
+        MainWindow.setMinimumSize(QSize(720, 430))
         MainWindow.setStyleSheet(u"QWidget {\n"
 "    background-color: #f6f8fb;\n"
 "    color: #1f2937;\n"
 "    font-family: \"Segoe UI\", \"Helvetica Neue\", Arial, sans-serif;\n"
-"    font-size: 14px;\n"
+"    font-size: 13px;\n"
 "}\n"
 "\n"
 "QFrame#headerFrame,\n"
@@ -50,27 +50,27 @@ class Ui_MainWindow(object):
 "\n"
 "QLabel#titleLabel {\n"
 "    color: #0f172a;\n"
-"    font-size: 28px;\n"
+"    font-size: 22px;\n"
 "    font-weight: 700;\n"
 "}\n"
 "\n"
 "QLabel#sectionLabel,\n"
 "QLabel#cycleTitleLabel {\n"
 "    color: #111827;\n"
-"    font-size: 17px;\n"
+"    font-size: 15px;\n"
 "    font-weight: 700;\n"
 "}\n"
 "\n"
 "QLabel#readinessLabel {\n"
 "    color: #ffffff;\n"
-"    border-radius: 16px;\n"
-"    padding: 6px 14px;\n"
+"    border-radius: 14px;\n"
+"    padding: 5px 10px;\n"
 "    font-weight: 700;\n"
 "}\n"
 "\n"
 "QLabel#stateLabel {\n"
 "    color: #334155;\n"
-"    font-size: 16px;\n"
+"    font-size: 14px;\n"
 "    font-weight: 700;\n"
 "}\n"
 "\n"
@@ -85,7 +85,7 @@ class Ui_MainWindow(object):
 "QLabel#transferredValueLabel,\n"
 "QLabel#nextBatchValueLabel {\n"
 "    color: #0f172a;\n"
-"    font-size: 24px;\n"
+"    font-size: 21px;\n"
 "    font-weight: 700;\n"
 "}\n"
 "\n"
@@ -93,8 +93,8 @@ class Ui_MainWindow(object):
 "    background-color: #ffffff;\n"
 "    border: 1px solid #cbd5e1;\n"
 "    border-radius: 6px;\n"
-"    padding: 8px 12px;\n"
-"    min-height: 22px;\n"
+"    padding: 6px 10px;\n"
+"    min-height: 20px;\n"
 "}\n"
 "\n"
 "QComboBox:disabled {\n"
@@ -106,7 +106,7 @@ class Ui_MainWindow(object):
 "    background-color: #e8edf4;\n"
 "    border: none;\n"
 "    border-radius: 6px;\n"
-"    height: 12px;\n"
+"    height: 10px;\n"
 "    text-align: center;\n"
 "    color: transparent;\n"
 "}\n"
@@ -119,13 +119,13 @@ class Ui_MainWindow(object):
 "QPushButton {\n"
 "    border: none;\n"
 "    border-radius: 6px;\n"
-"    padding: 11px 18px;\n"
+"    padding: 8px 14px;\n"
 "    font-weight: 700;\n"
 "}\n"
 "\n"
 "QPushButton#runButton {\n"
-"    background-color: #1"
-                        "d4ed8;\n"
+"    background-color: #1d"
+                        "4ed8;\n"
 "    color: #ffffff;\n"
 "}\n"
 "\n"
@@ -151,18 +151,18 @@ class Ui_MainWindow(object):
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
         self.mainLayout = QVBoxLayout(self.centralwidget)
-        self.mainLayout.setSpacing(16)
+        self.mainLayout.setSpacing(10)
         self.mainLayout.setObjectName(u"mainLayout")
-        self.mainLayout.setContentsMargins(24, 24, 24, 18)
+        self.mainLayout.setContentsMargins(12, 10, 12, 8)
         self.headerFrame = QFrame(self.centralwidget)
         self.headerFrame.setObjectName(u"headerFrame")
         self.headerFrame.setFrameShape(QFrame.Shape.StyledPanel)
         self.headerLayout = QHBoxLayout(self.headerFrame)
-        self.headerLayout.setSpacing(18)
+        self.headerLayout.setSpacing(12)
         self.headerLayout.setObjectName(u"headerLayout")
-        self.headerLayout.setContentsMargins(18, 16, 18, 16)
+        self.headerLayout.setContentsMargins(12, 9, 12, 9)
         self.titleLayout = QVBoxLayout()
-        self.titleLayout.setSpacing(4)
+        self.titleLayout.setSpacing(2)
         self.titleLayout.setObjectName(u"titleLayout")
         self.titleLabel = QLabel(self.headerFrame)
         self.titleLabel.setObjectName(u"titleLabel")
@@ -183,11 +183,11 @@ class Ui_MainWindow(object):
         self.headerLayout.addItem(self.headerSpacer)
 
         self.statusLayout = QVBoxLayout()
-        self.statusLayout.setSpacing(8)
+        self.statusLayout.setSpacing(4)
         self.statusLayout.setObjectName(u"statusLayout")
         self.readinessLabel = QLabel(self.headerFrame)
         self.readinessLabel.setObjectName(u"readinessLabel")
-        self.readinessLabel.setMinimumSize(QSize(126, 34))
+        self.readinessLabel.setMinimumSize(QSize(106, 30))
         self.readinessLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.statusLayout.addWidget(self.readinessLabel)
@@ -205,25 +205,25 @@ class Ui_MainWindow(object):
         self.mainLayout.addWidget(self.headerFrame)
 
         self.contentLayout = QHBoxLayout()
-        self.contentLayout.setSpacing(16)
+        self.contentLayout.setSpacing(10)
         self.contentLayout.setObjectName(u"contentLayout")
         self.leftColumnLayout = QVBoxLayout()
-        self.leftColumnLayout.setSpacing(16)
+        self.leftColumnLayout.setSpacing(10)
         self.leftColumnLayout.setObjectName(u"leftColumnLayout")
         self.setupFrame = QFrame(self.centralwidget)
         self.setupFrame.setObjectName(u"setupFrame")
         self.setupFrame.setFrameShape(QFrame.Shape.StyledPanel)
         self.setupLayout = QVBoxLayout(self.setupFrame)
-        self.setupLayout.setSpacing(12)
+        self.setupLayout.setSpacing(8)
         self.setupLayout.setObjectName(u"setupLayout")
-        self.setupLayout.setContentsMargins(18, 16, 18, 16)
+        self.setupLayout.setContentsMargins(12, 9, 12, 9)
         self.cycleTitleLabel = QLabel(self.setupFrame)
         self.cycleTitleLabel.setObjectName(u"cycleTitleLabel")
 
         self.setupLayout.addWidget(self.cycleTitleLabel)
 
         self.ratioLayout = QHBoxLayout()
-        self.ratioLayout.setSpacing(12)
+        self.ratioLayout.setSpacing(8)
         self.ratioLayout.setObjectName(u"ratioLayout")
         self.ratioLabel = QLabel(self.setupFrame)
         self.ratioLabel.setObjectName(u"ratioLabel")
@@ -238,7 +238,7 @@ class Ui_MainWindow(object):
         self.ratioComboBox.addItem("")
         self.ratioComboBox.addItem("")
         self.ratioComboBox.setObjectName(u"ratioComboBox")
-        self.ratioComboBox.setMinimumSize(QSize(128, 38))
+        self.ratioComboBox.setMinimumSize(QSize(112, 38))
 
         self.ratioLayout.addWidget(self.ratioComboBox)
 
@@ -252,9 +252,9 @@ class Ui_MainWindow(object):
         self.progressFrame.setObjectName(u"progressFrame")
         self.progressFrame.setFrameShape(QFrame.Shape.StyledPanel)
         self.progressLayout = QVBoxLayout(self.progressFrame)
-        self.progressLayout.setSpacing(14)
+        self.progressLayout.setSpacing(8)
         self.progressLayout.setObjectName(u"progressLayout")
-        self.progressLayout.setContentsMargins(18, 16, 18, 16)
+        self.progressLayout.setContentsMargins(12, 9, 12, 9)
         self.sectionLabel = QLabel(self.progressFrame)
         self.sectionLabel.setObjectName(u"sectionLabel")
 
@@ -322,7 +322,7 @@ class Ui_MainWindow(object):
         self.poseFrame.setFrameShape(QFrame.Shape.StyledPanel)
         self.poseLayout = QVBoxLayout(self.poseFrame)
         self.poseLayout.setObjectName(u"poseLayout")
-        self.poseLayout.setContentsMargins(18, 14, 18, 14)
+        self.poseLayout.setContentsMargins(12, 8, 12, 8)
         self.poseValueLabel = QLabel(self.poseFrame)
         self.poseValueLabel.setObjectName(u"poseValueLabel")
 
@@ -336,12 +336,12 @@ class Ui_MainWindow(object):
 
         self.metricsFrame = QFrame(self.centralwidget)
         self.metricsFrame.setObjectName(u"metricsFrame")
-        self.metricsFrame.setMinimumSize(QSize(260, 0))
+        self.metricsFrame.setMinimumSize(QSize(218, 0))
         self.metricsFrame.setFrameShape(QFrame.Shape.StyledPanel)
         self.metricsLayout = QVBoxLayout(self.metricsFrame)
-        self.metricsLayout.setSpacing(18)
+        self.metricsLayout.setSpacing(9)
         self.metricsLayout.setObjectName(u"metricsLayout")
-        self.metricsLayout.setContentsMargins(18, 16, 18, 16)
+        self.metricsLayout.setContentsMargins(12, 9, 12, 9)
         self.metricsTitleLabel = QLabel(self.metricsFrame)
         self.metricsTitleLabel.setObjectName(u"metricsTitleLabel")
 
@@ -395,19 +395,19 @@ class Ui_MainWindow(object):
 
         self.metricsLayout.addLayout(self.nextBatchLayout)
 
-        self.metricsSpacer = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
+        self.metricsSpacer = QSpacerItem(20, 12, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
 
         self.metricsLayout.addItem(self.metricsSpacer)
 
         self.calibrateButton = QPushButton(self.metricsFrame)
         self.calibrateButton.setObjectName(u"calibrateButton")
-        self.calibrateButton.setMinimumSize(QSize(0, 42))
+        self.calibrateButton.setMinimumSize(QSize(0, 38))
 
         self.metricsLayout.addWidget(self.calibrateButton)
 
         self.runButton = QPushButton(self.metricsFrame)
         self.runButton.setObjectName(u"runButton")
-        self.runButton.setMinimumSize(QSize(0, 46))
+        self.runButton.setMinimumSize(QSize(0, 42))
 
         self.metricsLayout.addWidget(self.runButton)
 
