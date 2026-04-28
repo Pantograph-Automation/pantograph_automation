@@ -22,10 +22,20 @@ CALLUSES_OUT = [[p[0] + 0.15, p[1]] for p in CALLUSES_IN]
 compute_angles = lambda endpoint : control.compute_joint_angles(
     control.A1, control.A2, control.A3, control.A4, control.A5,
     np.array([0.0, 0.0]), endpoint, np.array([-control.A5, 0.0]))
+
+def move_and_wait(serial_connection, q1, q2, z):
+    result = serial_connection.send_setpoint(q1, q2, z)
+    print("SETPOINT", result.status, result.message)
+    if not result.status:
+        raise RuntimeError(result.message)
+
 try:
     serial_connection = control.SerialConnection("/dev/ttyACM0", 115200)
 except:
-    serial_connection = control.SerialConnection("/dev/ttyACM1", 115200)
+    try:
+        serial_connection = control.SerialConnection("/dev/ttyACM1", 115200)
+    except:
+        serial_connection = control.SerialConnection("COM6", 115200)
 
 result = serial_connection.send_activate()
 
@@ -33,59 +43,47 @@ print(result.status, result.message)
 
 
 result = serial_connection.send_gripper("OPEN")
-time.sleep(0.5)
+# time.sleep(0.2)
 result = serial_connection.send_gripper("CLOSE")
-time.sleep(0.5)
+# time.sleep(0.2)
 result = serial_connection.send_gripper("OPEN")
-time.sleep(0.5)
-result = serial_connection.send_gripper("CLOSE")
-print(result.status, result.message)
-time.sleep(0.5)
+
 
 angles = compute_angles(np.array(CALLUSES_IN[0]))
-serial_connection.send_setpoint(angles[1], angles[0], LIFT_HEIGHT)
-wait()
+move_and_wait(serial_connection, angles[0], angles[1], LIFT_HEIGHT)
 
 angles = compute_angles(np.array(HOME))
-serial_connection.send_setpoint(angles[1], angles[0], LIFT_HEIGHT)
+move_and_wait(serial_connection, angles[0], angles[1], LIFT_HEIGHT)
 result = serial_connection.send_gripper("OPEN")
-time.sleep(1.0)
+# time.sleep(1.0)
 
 for index, P in enumerate(CALLUSES_IN):
 
     # Move above the callus in
     angles = compute_angles(np.array(P))
-    serial_connection.send_setpoint(angles[1], angles[0], LIFT_HEIGHT)
+    move_and_wait(serial_connection, angles[0], angles[1], LIFT_HEIGHT)
     result = serial_connection.send_gripper("OPEN")
-    time.sleep(5.0)
 
     # Grip the callus
-    serial_connection.send_setpoint(angles[1], angles[0], GRIP_HEIGHT)
-    time.sleep(1.0)
+    move_and_wait(serial_connection, angles[0], angles[1], GRIP_HEIGHT)
     result = serial_connection.send_gripper("CLOSE")
-    time.sleep(0.5)
 
     # Lift the callus
-    serial_connection.send_setpoint(angles[1], angles[0], LIFT_HEIGHT)
-    time.sleep(0.5)
+    move_and_wait(serial_connection, angles[0], angles[1], LIFT_HEIGHT)
     
     # Move to corresponding point out
     angles = compute_angles(np.array(CALLUSES_OUT[index]))
-    serial_connection.send_setpoint(angles[1], angles[0], LIFT_HEIGHT)
-    time.sleep(5.0)
+    move_and_wait(serial_connection, angles[0], angles[1], LIFT_HEIGHT)
 
     # Lower the callus into media
-    serial_connection.send_setpoint(angles[1], angles[0], GRIP_HEIGHT)
-    time.sleep(1.0)
+    move_and_wait(serial_connection, angles[0], angles[1], GRIP_HEIGHT)
     result = serial_connection.send_gripper("OPEN")
-    time.sleep(0.5)
 
     # Lift back out 
-    serial_connection.send_setpoint(angles[1], angles[0], LIFT_HEIGHT)
-    time.sleep(0.5)
+    move_and_wait(serial_connection, angles[0], angles[1], LIFT_HEIGHT)
+
 
 
 angles = compute_angles(np.array(HOME))
-serial_connection.send_setpoint(angles[1], angles[0], UP_HEIGHT)
+move_and_wait(serial_connection, angles[0], angles[1], UP_HEIGHT)
 result = serial_connection.send_gripper("OPEN")
-time.sleep(1.0)

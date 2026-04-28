@@ -1,12 +1,23 @@
+import atexit
+import math
+import os
+import threading
+
 import cv2
 import numpy as np
-import math
-from picamera2 import Picamera2
 
-# --- TUNABLE PARAMETERS ---
-MASK_RADIUS_RATIO = 0.37 
-MASK_Y_OFFSET = -50
-MASK_X_OFFSET = -50
+try:
+    from picamera2 import Picamera2
+except ImportError:  # pragma: no cover - hardware dependency
+    Picamera2 = None
+
+_camera_lock = threading.Lock()
+_camera = None
+
+MASK_RADIUS_RATIO = 0.474
+MASK_Y_OFFSET = -72
+MASK_X_OFFSET = -65
+MIN_CONTOUR_CIRCULARITY = 0.5
 
 def _apply_circular_mask(image, x_offset=0, y_offset=0, radius_ratio=0.45):
     h, w = image.shape[:2]
@@ -16,72 +27,129 @@ def _apply_circular_mask(image, x_offset=0, y_offset=0, radius_ratio=0.45):
     cv2.circle(mask, center, radius, 255, -1)
     
     masked_image = cv2.bitwise_and(image, image, mask=mask)
-    cv2.imwrite('1_masked_output.png', masked_image)
     return masked_image
 
-def _isolate_pink_spots(masked_image):
+def _isolate_spots(
+    masked_image,
+    x_offset=MASK_X_OFFSET,
+    y_offset=MASK_Y_OFFSET,
+    radius_ratio=MASK_RADIUS_RATIO,
+):
     """
-    Uses Saturation and Value to find bright, colorful spots.
+    Isolate dark circular spots.
+    Only the region inside the circular mask is inverted.
+    Returns white spots on black background.
     """
-    hsv = cv2.cvtColor(masked_image, cv2.COLOR_BGR2HSV)
-    
-    # We target HIGH Saturation (the 'pinkness') and HIGH Value (the 'brightness')
-    # This is usually more stable than Hue for laser-lit foam.
-    lower_bound = np.array([0, 160, 120]) 
-    upper_bound = np.array([180, 255, 255])
-    
-    color_mask = cv2.inRange(hsv, lower_bound, upper_bound)
-    cv2.imwrite('2_raw_color_mask.png', color_mask)
-    return color_mask
+
+    h, w = masked_image.shape[:2]
+
+    # Grayscale + contrast
+    gray = cv2.cvtColor(masked_image, cv2.COLOR_BGR2GRAY)
+
+    clahe = cv2.createCLAHE(clipLimit=3.0, tileGridSize=(8, 8))
+    gray = clahe.apply(gray)
+
+    gray = cv2.GaussianBlur(gray, (5, 5), 0)
+
+    # Threshold dark spots normally: dark -> white
+    _, spot_mask = cv2.threshold(gray, 80, 255, cv2.THRESH_BINARY_INV)
+
+    # Create circular ROI mask
+    circle_mask = np.zeros((h, w), dtype=np.uint8)
+
+    cx = w // 2 + x_offset
+    cy = h // 2 + y_offset
+    radius = int(0.925 * radius_ratio * min(h, w))
+
+    cv2.circle(circle_mask, (cx, cy), radius, 255, -1)
+
+    # Keep only inverted/white spots inside the circle
+    result = cv2.bitwise_and(spot_mask, circle_mask)
+
+    return result
 
 def _clean_noise_morphology(color_mask):
     # Use a slightly larger kernel to bridge gaps in foam texture
-    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (8, 8))
+    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (7, 7))
     
     # Remove noise, then close holes
-    opened = cv2.morphologyEx(color_mask, cv2.MORPH_OPEN, kernel, iterations=1)
-    cleaned_mask = cv2.morphologyEx(opened, cv2.MORPH_CLOSE, kernel, iterations=2)
+    opened = cv2.morphologyEx(color_mask, cv2.MORPH_OPEN, kernel, iterations=2)
+    cleaned_mask = cv2.morphologyEx(opened, cv2.MORPH_CLOSE, kernel, iterations=3)
     
-    cv2.imwrite('3_morphology_cleaned_mask.png', cleaned_mask)
     return cleaned_mask
+
+def _contour_circularity(contour):
+    area = cv2.contourArea(contour)
+    perimeter = cv2.arcLength(contour, True)
+    if perimeter == 0:
+        return 0.0
+    return 4 * math.pi * area / (perimeter * perimeter)
 
 def _extract_centroids(original_image, cleaned_mask, min_area=3000, max_area=1000000):
     contours, _ = cv2.findContours(cleaned_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     
     centroids = []
-    visual_output = original_image.copy()
     
     for cnt in contours:
         area = cv2.contourArea(cnt)
-        if min_area < area < max_area:
-            M = cv2.moments(cnt)
-            if M["m00"] != 0:
-                cx = int(M["m10"] / M["m00"])
-                cy = int(M["m01"] / M["m00"])
-                centroids.append((cx, cy))
-                
-                # Visual debug
-                r = int(math.sqrt(area / math.pi))
-                cv2.circle(visual_output, (cx, cy), r, (0, 255, 0), 2)
-                cv2.circle(visual_output, (cx, cy), 2, (0, 0, 255), -1)
+        if not (min_area < area < max_area):
+            continue
 
-    cv2.imwrite('4_final_detection.png', visual_output)
+        if _contour_circularity(cnt) < MIN_CONTOUR_CIRCULARITY:
+            continue
+
+        M = cv2.moments(cnt)
+        if M["m00"] != 0:
+            cx = int(M["m10"] / M["m00"])
+            cy = int(M["m01"] / M["m00"])
+            centroids.append((cx, cy))
+                
     return centroids
 
 def process_frame(frame, x_off=0, y_off=0, rad_ratio=0.45):
     img_masked = _apply_circular_mask(frame, x_off, y_off, rad_ratio)
-    raw_mask = _isolate_pink_spots(img_masked)
+    raw_mask = _isolate_spots(img_masked, x_off, y_off, rad_ratio)
     clean_mask = _clean_noise_morphology(raw_mask)
     return _extract_centroids(frame, clean_mask)
 
-def capture_frame():
-    pc = Picamera2()
-    pc.configure(pc.create_still_configuration())   # default processed RGB "main"
-    pc.start()
-    img = pc.capture_array("main")  # HxWx3 RGB uint8
-    pc.stop()
+def _get_camera():
+    if Picamera2 is None:
+        raise RuntimeError("Picamera2 is unavailable. Camera capture must run on the Raspberry Pi environment.")
 
+    global _camera
+    if _camera is None:
+        pc = Picamera2()
+        pc.configure(pc.create_still_configuration())   # default processed RGB "main"
+        pc.start()
+        _camera = pc
+    return _camera
+
+def close_camera():
+    global _camera
+    with _camera_lock:
+        pc = _camera
+        _camera = None
+        if pc is None:
+            return
+
+        stop = getattr(pc, "stop", None)
+        if stop is not None:
+            stop()
+
+        close = getattr(pc, "close", None)
+        if close is not None:
+            close()
+
+
+def capture_frame():
+    with _camera_lock:
+        pc = _get_camera()
+        img = pc.capture_array("main")  # HxWx3 RGB uint8
     return cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
+
+
+atexit.register(close_camera)
+
 
 if __name__ == "__main__":
     # Ensure you use the correct path to your input image
